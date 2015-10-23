@@ -1,13 +1,15 @@
-package cz.filipekt.jdcv.graph;
+package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * The {@link Graph} represents a Matsim network.
+ * The {@link Network} represents a Matsim network.
  * 
  * <p>
  * The network describes nodes and links of a given region. It is spit up into
@@ -24,7 +26,7 @@ import java.util.Set;
  * 
  * @author Dominik Skoda <skoda@d3s.mff.cuni.cz>
  */
-public class Graph {
+public class Network {
 
 	/**
 	 * Holds all the links of the network.
@@ -123,7 +125,7 @@ public class Graph {
 	/**
 	 * The set of nodes in the network.
 	 */
-	private Set<Node> nodes;
+	private Map<Integer,Node> nodes;
 
 	/**
 	 * The set of links in the network.
@@ -164,8 +166,8 @@ public class Graph {
 	/**
 	 * Create a new graph instance. New graph has no nodes and no links.
 	 */
-	public Graph(){
-		nodes = new HashSet<>();
+	public Network(){
+		nodes = new HashMap<>();
 		linksWrap = new Links();
 		name = null;
 		type = null;
@@ -184,8 +186,8 @@ public class Graph {
 			throw new IllegalArgumentException(String.format(
 					"The argument \"%s\" cannot be null.", "node"));
 		}
-		if(!nodes.contains(node)){
-			nodes.add(node);
+		if(!nodes.containsValue(node)){
+			nodes.put(node.getId(),node);
 			return true;
 		}
 		return false;
@@ -203,7 +205,7 @@ public class Graph {
 			throw new IllegalArgumentException(String.format(
 					"The argument \"%s\" cannot be null.", "node"));
 		}
-		if(nodes.contains(node)){
+		if(nodes.containsValue(node)){
 			nodes.remove(node);
 			linksWrap.links.removeAll(getIncidentLinks(node));
 			return true;
@@ -215,8 +217,15 @@ public class Graph {
 	 * Return all the nodes in the graph.
 	 * @return All the nodes in the graph.
 	 */
-	public Set<Node> getNodes(){
-		return Collections.unmodifiableSet(nodes);
+	public Map<Integer,Node> getNodes(){
+		return Collections.unmodifiableMap(nodes);
+	}
+	
+	/**
+	 * @return The node with given id.
+	 */
+	public Node getNode(int id){
+		return nodes.get(id);
 	}
 	
 	/**
@@ -526,7 +535,7 @@ public class Graph {
 		builder.append(">\n");
 		
 		builder.append("\t<nodes>\n");
-		for(Node node : nodes){
+		for(Node node : nodes.values()){
 			builder.append("\t\t").append(node.toString()).append('\n');
 		}
 		builder.append("\t</nodes>\n");

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE network SYSTEM "http://www.matsim.org/files/dtd/network_v1.dtd">
+<network xml:lang="en" >
+	<nodes>
+		<node id="0" x="0.0" y="0.0" />
+		<node id="1" x="0.0" y="1.0" />
+		<node id="2" x="0.0" y="2.0" />
+		<node id="3" x="1.0" y="0.0" />
+		<node id="4" x="1.0" y="1.0" />
+		<node id="5" x="1.0" y="2.0" />
+		<node id="6" x="2.0" y="0.0" />
+		<node id="7" x="2.0" y="1.0" />
+		<node id="8" x="2.0" y="2.0" />
+		<node id="9" x="3.0" y="0.0" />
+		<node id="10" x="3.0" y="1.0" />
+		<node id="11" x="3.0" y="2.0" />
+		<node id="12" x="4.0" y="0.0" />
+		<node id="13" x="4.0" y="1.0" />
+		<node id="14" x="4.0" y="2.0" />
+	</nodes>
+	<links capperiod="01:00:00" effectivecellsize="7.5" effectivelanewidth="3.75" >
+		<link id="426" from="3" to="6" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="450" from="12" to="13" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="438" from="8" to="10" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="445" from="10" to="11" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="414" from="0" to="1" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="435" from="6" to="9" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="433" from="6" to="10" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="439" from="7" to="10" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="440" from="8" to="11" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="447" from="11" to="13" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="419" from="1" to="5" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="451" from="13" to="14" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="418" from="1" to="2" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="425" from="4" to="6" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="415" from="0" to="4" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="444" from="9" to="12" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="432" from="6" to="7" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="436" from="7" to="8" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="420" from="2" to="4" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="416" from="1" to="3" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="437" from="7" to="11" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="434" from="7" to="9" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="443" from="10" to="12" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="448" from="10" to="13" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="421" from="1" to="4" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="417" from="0" to="3" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="422" from="2" to="5" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="429" from="5" to="7" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="423" from="3" to="4" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="427" from="4" to="5" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="431" from="5" to="8" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="428" from="4" to="8" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="424" from="3" to="7" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="442" from="9" to="13" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="446" from="10" to="14" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="430" from="4" to="7" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="449" from="11" to="14" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="441" from="9" to="10" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+	</links>
+</network>

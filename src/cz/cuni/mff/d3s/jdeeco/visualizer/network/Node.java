@@ -1,4 +1,4 @@
-package cz.filipekt.jdcv.graph;
+package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
 /**
  * Each {@link Node} instance represents a node in a Matsim-style network.
@@ -10,7 +10,7 @@ public class Node {
 	/**
 	 * The reference to generate next node ID.
 	 */
-	private static int NODE_ID_REFERENCE = 0;
+	private static int nodeIdReference = 0;
 	
 	/** 
 	 * Each node HAS to have a unique id!
@@ -60,7 +60,7 @@ public class Node {
 	 * @param y The Y coordinate of the node.
 	 */
 	public Node(double x, double y){
-		id = Node.NODE_ID_REFERENCE++;
+		id = Node.nodeIdReference++;
 		this.x = x;
 		this.y = y;
 
@@ -162,4 +162,9 @@ public class Node {
 		
 		return builder.toString();
 	}
+	
+	public static void resetIdReference(){
+		nodeIdReference = 0;
+	}
+
 }
