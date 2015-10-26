@@ -1,4 +1,4 @@
-package cz.filipekt.jdcv.graph;
+package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * The {@link Graph} represents a Matsim network.
+ * The {@link Network} represents a Matsim network.
  * 
  * <p>
  * The network describes nodes and links of a given region. It is spit up into
@@ -24,7 +24,7 @@ import java.util.Set;
  * 
  * @author Dominik Skoda <skoda@d3s.mff.cuni.cz>
  */
-public class Graph {
+public class Network {
 
 	/**
 	 * Holds all the links of the network.
@@ -164,7 +164,7 @@ public class Graph {
 	/**
 	 * Create a new graph instance. New graph has no nodes and no links.
 	 */
-	public Graph(){
+	public Network(){
 		nodes = new HashSet<>();
 		linksWrap = new Links();
 		name = null;

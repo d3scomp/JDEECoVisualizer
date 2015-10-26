@@ -1,4 +1,4 @@
-package cz.filipekt.jdcv.graph;
+package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
 import java.util.ArrayList;
 import java.util.Collections;
