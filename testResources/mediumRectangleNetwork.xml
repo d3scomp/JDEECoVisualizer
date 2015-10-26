@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE network SYSTEM "http://www.matsim.org/files/dtd/network_v1.dtd">
+<network xml:lang="en" >
+	<nodes>
+		<node id="6" x="2.0" y="0.0" />
+		<node id="4" x="1.0" y="1.0" />
+		<node id="7" x="2.0" y="1.0" />
+		<node id="13" x="4.0" y="1.0" />
+		<node id="10" x="3.0" y="1.0" />
+		<node id="3" x="1.0" y="0.0" />
+		<node id="14" x="4.0" y="2.0" />
+		<node id="11" x="3.0" y="2.0" />
+		<node id="9" x="3.0" y="0.0" />
+		<node id="2" x="0.0" y="2.0" />
+		<node id="8" x="2.0" y="2.0" />
+		<node id="5" x="1.0" y="2.0" />
+		<node id="0" x="0.0" y="0.0" />
+		<node id="1" x="0.0" y="1.0" />
+		<node id="12" x="4.0" y="0.0" />
+	</nodes>
+	<links capperiod="01:00:00" effectivecellsize="7.5" effectivelanewidth="3.75" >
+		<link id="355" from="4" to="5" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="379" from="13" to="14" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="367" from="7" to="10" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="374" from="10" to="14" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="343" from="0" to="4" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="364" from="7" to="8" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="362" from="7" to="9" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="368" from="8" to="11" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="369" from="9" to="10" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="376" from="10" to="13" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="348" from="2" to="4" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="347" from="1" to="5" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="354" from="3" to="6" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="344" from="1" to="3" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="373" from="10" to="11" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="361" from="6" to="10" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="365" from="7" to="11" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="349" from="1" to="4" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="345" from="0" to="3" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="366" from="8" to="10" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="342" from="0" to="1" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="363" from="6" to="9" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="372" from="9" to="12" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="377" from="11" to="14" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="350" from="2" to="5" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="346" from="1" to="2" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="351" from="3" to="4" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="358" from="4" to="7" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="352" from="3" to="7" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="356" from="4" to="8" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="360" from="6" to="7" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="357" from="5" to="7" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="353" from="4" to="6" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="371" from="10" to="12" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="375" from="11" to="13" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="359" from="5" to="8" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="378" from="12" to="13" length="1.0" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+		<link id="370" from="9" to="13" length="1.4142135623730951" freespeed="1.0" capacity="1.0" permlanes="1.0" oneway="1" />
+	</links>
+</network>
