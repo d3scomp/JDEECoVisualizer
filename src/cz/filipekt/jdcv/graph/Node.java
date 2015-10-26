@@ -17,7 +17,7 @@ public class Node {
 	 * <p>format := unsigned integer</p>
 	 * <p>REQUIRED</p>
 	 */
-	private final int id;
+	protected final int id;
 	
 	/**
 	 * Each node HAS to have an x coordinate!
@@ -25,7 +25,7 @@ public class Node {
 	 * <p>units  := meter</p>
 	 * <p>REQUIRED</p>
 	 */
-	private final double x;
+	protected final double x;
 	
 	/** 
 	 * Each node HAS to have an y coordinate!
@@ -33,7 +33,7 @@ public class Node {
 	 * <p>units  := meter</p>
 	 * <p>REQUIRED</p>
 	 */
-	private final double y;
+	protected final double y;
 	
 	/** 
 	 * Typically, networks are created by third party (i.e. GIS users).
