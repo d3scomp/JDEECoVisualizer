@@ -26,9 +26,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Computes shortest path between two {@link Node}s in a {@link Network}.
@@ -81,22 +80,22 @@ public class Dijkstra {
 	 */
 	public static List<Link> getShortestPath(Network graph, Node source, Node target){
 		final Map<Node, DistanceFrom> distances = getInitialDistances(graph, source);
-		Node current = source;
-		final SortedSet<Node> unvisited = new TreeSet<>(new Comparator<Node>(){
+		final PriorityQueue<Node> unvisited = new PriorityQueue<>(
+				new Comparator<Node>(){
 			@Override
 			public int compare(Node from, Node to) {
 				return Double.compare(distances.get(from).distance, distances.get(to).distance);
 			}
 		});
 		unvisited.addAll(graph.getNodes());
+		Node current = unvisited.poll();
 		
 		while(true){
 			updateSuccessorsDistances(graph, current, unvisited, distances);
-			unvisited.remove(current);
 			if(current == target){
 				return assemblePath(target, distances);
 			}
-			current = unvisited.first();
+			current = unvisited.poll();
 			if(!Double.isFinite(distances.get(current).distance)){
 				return Collections.emptyList();
 			}
@@ -116,6 +115,8 @@ public class Dijkstra {
 		for(Node node : graph.getNodes()){
 			if(node == source){
 				initialDistances.put(node, new DistanceFrom(null, 0));
+				DistanceFrom check = initialDistances.get(node);
+				System.out.println(check);
 			} else {
 				initialDistances.put(node, new DistanceFrom(null, Double.POSITIVE_INFINITY));
 			}
@@ -133,7 +134,7 @@ public class Dijkstra {
 	 * @param unvisited The set of unvisited nodes.
 	 * @param distances The distances of individual nodes.
 	 */
-	private static void updateSuccessorsDistances(Network graph, Node current, Set<Node> unvisited, Map<Node, DistanceFrom> distances){
+	private static void updateSuccessorsDistances(Network graph, Node current, PriorityQueue<Node> unvisited, Map<Node, DistanceFrom> distances){
 		Set<Link> linksFrom = graph.getLinksFrom(current);
 		for(Link link: linksFrom){
 			Node successor = link.getTo();
@@ -143,6 +144,8 @@ public class Dijkstra {
 				if(distViaCurrent < successorDistance.distance){
 					successorDistance.distance = distViaCurrent;
 					successorDistance.predecessorLink = link;
+					unvisited.remove(successor);
+					unvisited.add(successor);
 				}
 			}
 		}
