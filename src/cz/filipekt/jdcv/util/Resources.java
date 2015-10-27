@@ -48,7 +48,7 @@ public class Resources {
 				if (Debug.debugModeOn){
 					return Paths.get(Debug.projectDir, "resources", resourceName).toUri();
 				} else {
-					return Visualizer.class.getResource("/resources/" + resourceName).toURI();
+					return Visualizer.class.getResource("/" + resourceName).toURI();
 				}
 			} catch (URISyntaxException ex){
 				throw new IllegalArgumentException(ex);

@@ -10,23 +10,23 @@ public class EnsembleEvent implements Event{
 	/**
 	 * The coordinator of the ensemble
 	 */
-	private final String coordinator;
+	private String coordinator;
 	
 	/**
 	 * A member of the ensemble
 	 */
-	private final String member;
+	private String member;
 	
 	/**
 	 * If true, {@link EnsembleEvent#member} is a member of {@link EnsembleEvent#ensemble} where
 	 * {@link EnsembleEvent#coordinator} is the coordinator.
 	 */
-	private final boolean membership;
-	
+	private boolean membership;
+
 	/**
 	 * Name of the ensemble
 	 */
-	private final String ensemble;
+	private String ensemble;
 	
 	/**
 	 * A point in time when {@link EnsembleEvent#membership} holds
@@ -95,6 +95,26 @@ public class EnsembleEvent implements Event{
 		this.membership = membership;
 		this.ensemble = ensemble;
 		this.time = time;
+	}
+
+	public EnsembleEvent(double time) {
+		this.time = time;
+	}
+	
+	public void setMember(String member) {
+		this.member = member;
+	}
+	
+	public void setCoordinator(String coordinator) {
+		this.coordinator = coordinator;
+	}
+
+	public void setMembership(boolean membership) {
+		this.membership = membership;
+	}
+
+	public void setEnsemble(String ensemble) {
+		this.ensemble = ensemble;
 	}
 
 	@Override
