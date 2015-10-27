@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<events>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>V20</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V6</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>V6</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V20</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>V20</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V2</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="else1" >
+	<coordinatorID>V20</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V17</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="else2" >
+	<coordinatorID>V17</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V20</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>V2</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>V20</memberID>
+</event>
+</events>
