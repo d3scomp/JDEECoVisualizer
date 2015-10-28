@@ -39,7 +39,7 @@ public class EnsembleHandler extends DefaultHandler {
 	private final String typeName = "eventType";
 
 	/**
-	 * Expected value of hte type attribute of the event element. Events of
+	 * Expected value of the type attribute of the event element. Events of
 	 * different types should be ignored by this handler.
 	 */
 	private final String expectedTypeValue = EnsembleLogRecord.class.getCanonicalName();
@@ -102,7 +102,7 @@ public class EnsembleHandler extends DefaultHandler {
 	/**
 	 * Stack to keep reference to the parent event element
 	 */
-	private Stack<EnsembleEvent> ensembleEventsStack = new Stack<EnsembleEvent>();
+	private Stack<EnsembleEvent> ensembleEventsStack = new Stack<>();
 
 	/**
 	 * @return The parsed event elements

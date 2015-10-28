@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<events>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>12042_1</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>8984_2</memberID>
+</event>
+<event time="25871" id="EnsembleTask" eventType="cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord" >
+	<coordinatorID>8984_2</coordinatorID>
+	<membership>true</membership>
+	<ensembleName>example3.CapacityExchangeEnsemble</ensembleName>
+	<memberID>12042_1</memberID>
+</event>
+</events>

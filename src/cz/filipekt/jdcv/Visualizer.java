@@ -456,6 +456,12 @@ public class Visualizer extends Application {
 	private final CheckBox onlyComponentsBox = new CheckBox();
 
 	/**
+	 * The checkbox for specifying whether only the event log expects matsim
+	 * events or jDEECo events
+	 */
+	private final CheckBox matsimLogBox = new CheckBox();
+	
+	/**
 	 * Prepares and initializes the contents of @link Visualizer#importSceneGrid}.
 	 */
 	private void createImportSceneGrid(){
@@ -467,12 +473,12 @@ public class Visualizer extends Application {
 		double loadButtonWidth = GUIUtils.computeTextLength(loadButtonText) + 40.0;
 		List<Label> labels = new ArrayList<>();
 		labels.add(new Label("Map/network definition:"));
-		labels.add(new Label("Matsim event log:"));
+		labels.add(new Label("Event log:"));
 		labels.add(new Label("Ensemble event log:"));
 		List<Button> chooserButtons = new ArrayList<>();				
 		int row = prepareInputFilesControls(importSceneGrid, fields, labels, charsets, 
 				chooserButtons, encodingBoxWidth, selectButtonWidth);	
-		row = prepareOtherControls(importSceneGrid, row, durationField, onlyComponentsBox, 
+		row = prepareOtherControls(importSceneGrid, row, durationField, onlyComponentsBox, matsimLogBox,
 				startAtField, endAtField);
 		row += 1;
 		String line = "----------";
@@ -483,10 +489,9 @@ public class Visualizer extends Application {
 		prepareConfigLoaderRow(importSceneGrid, row, fields, charsets, durationField, 
 				encodingBoxWidth, selectButtonWidth, loadButtonWidth, onlyComponentsBox,
 				startAtField, endAtField);
-		row += 2;		
-		okButton.setOnAction(new SceneImportHandler(fields, okButton, onlyComponentsBox, 
-				importSceneGrid, Visualizer.this, durationField, timeLineStatus, timeLineRate, 
-				startAtField, endAtField, charsets));
+		row += 2;
+		okButton.setOnAction(new SceneImportHandler(fields, okButton, onlyComponentsBox, matsimLogBox, importSceneGrid,
+				Visualizer.this, durationField, timeLineStatus, timeLineRate, startAtField, endAtField, charsets));
 		importSceneGrid.add(okButton, 1, row);
 		importSceneGrid.setAlignment(Pos.CENTER);
 		importSceneGrid.setHgap(importSceneGridHGap);
@@ -500,12 +505,18 @@ public class Visualizer extends Application {
 	 * @param durationField The input field for specifying the desired duration of the visualization
 	 * @param onlyComponentsBox The checkbox for specifying whether only the injected JDEECo
 	 * components should be visualized
+	 * @param matsimLogBox2 
 	 * @param startAtField Input field specifying at which simulation time should the visualization start
 	 * @param endAtField Input field specifying at which simulation time should the visualization end
 	 * @return The number of the current row, as the "import scene" page is built one row at a time
 	 */
 	private int prepareOtherControls(GridPane pane, int row, TextField durationField, 
-			CheckBox onlyComponentsBox, TextField startAtField, TextField endAtField){
+			CheckBox onlyComponentsBox, CheckBox matsimLogBox, TextField startAtField, TextField endAtField){
+		Label matsimLogLabel = new Label("Expect matsim logs:");
+		matsimLogBox.setSelected(false);
+		pane.add(matsimLogLabel, 0, row);
+		pane.add(matsimLogBox, 1, row);
+		row += 1;		
 		Label durationLabel = new Label("Target duration (seconds):");
 		pane.add(durationLabel, 0, row);
 		pane.add(durationField, 1, row);		

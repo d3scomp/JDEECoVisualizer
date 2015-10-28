@@ -17,12 +17,12 @@ public class EnteredOrLeftLink implements MatsimEvent {
 	/**
 	 * ID of the person that entered (or left) the link.
 	 */
-	private final String person;
+	private String person;
 	
 	/**
 	 * The link that has been entered (or left).
 	 */
-	private final MyLink link;
+	private MyLink link;
 	
 	/**
 	 * The vehicle used to enter (or leave) the link.
@@ -94,6 +94,24 @@ public class EnteredOrLeftLink implements MatsimEvent {
 		this.person = person;
 		this.link = link;
 		this.vehicleId = vehicleId;
+	}
+
+	public EnteredOrLeftLink(boolean entered, double time, String vehicleId) {
+		if (entered){
+			type = EventType.ENTERED_LINK;
+		} else {
+			type = EventType.LEFT_LINK;
+		}
+		this.time = time;
+		this.vehicleId = vehicleId;
+	}
+	
+	public void setLink(MyLink link) {
+		this.link = link;
+	}
+
+	public void setPerson(String person) {
+		this.person = person;
 	}
 
 }

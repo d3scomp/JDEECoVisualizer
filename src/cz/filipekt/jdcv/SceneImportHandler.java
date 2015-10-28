@@ -12,6 +12,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import cz.filipekt.jdcv.checkpoints.CheckPoint;
+import cz.filipekt.jdcv.checkpoints.CheckPoint.Type;
+import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
+import cz.filipekt.jdcv.events.EnsembleEvent;
+import cz.filipekt.jdcv.events.EnteredOrLeftLink;
+import cz.filipekt.jdcv.events.EntersOrLeavesVehicle;
+import cz.filipekt.jdcv.events.EventType;
+import cz.filipekt.jdcv.events.MatsimEvent;
+import cz.filipekt.jdcv.network.MyLink;
+import cz.filipekt.jdcv.util.BigFilesSearch;
+import cz.filipekt.jdcv.util.BigFilesSearch.ElementTooLargeException;
+import cz.filipekt.jdcv.util.BigFilesSearch.SelectionTooBigException;
+import cz.filipekt.jdcv.util.Dialog;
+import cz.filipekt.jdcv.util.Resources;
+import cz.filipekt.jdcv.xml.BackgroundHandler;
+import cz.filipekt.jdcv.xml.CorridorHandler;
+import cz.filipekt.jdcv.xml.EnsembleHandler;
+import cz.filipekt.jdcv.xml.LinkHandler;
+import cz.filipekt.jdcv.xml.MatsimEventHandler;
+import cz.filipekt.jdcv.xml.JDEECoEventHandler;
+import cz.filipekt.jdcv.xml.NodeHandler;
+import cz.filipekt.jdcv.xml.XMLextractor;
 import javafx.animation.Animation.Status;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -30,32 +57,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import cz.filipekt.jdcv.checkpoints.CheckPoint;
-import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
-import cz.filipekt.jdcv.checkpoints.CheckPoint.Type;
-import cz.filipekt.jdcv.events.EnsembleEvent;
-import cz.filipekt.jdcv.events.EnteredOrLeftLink;
-import cz.filipekt.jdcv.events.EntersOrLeavesVehicle;
-import cz.filipekt.jdcv.events.EventType;
-import cz.filipekt.jdcv.events.MatsimEvent;
-import cz.filipekt.jdcv.network.MyLink;
-import cz.filipekt.jdcv.util.BigFilesSearch;
-import cz.filipekt.jdcv.util.Dialog;
-import cz.filipekt.jdcv.util.Resources;
-import cz.filipekt.jdcv.util.BigFilesSearch.ElementTooLargeException;
-import cz.filipekt.jdcv.util.BigFilesSearch.SelectionTooBigException;
-import cz.filipekt.jdcv.xml.BackgroundHandler;
-import cz.filipekt.jdcv.xml.CorridorHandler;
-import cz.filipekt.jdcv.xml.EnsembleHandler;
-import cz.filipekt.jdcv.xml.LinkHandler;
-import cz.filipekt.jdcv.xml.MatsimEventHandler;
-import cz.filipekt.jdcv.xml.NodeHandler;
-import cz.filipekt.jdcv.xml.XMLextractor;
 
 /**
  * Listener for the event that the user requests a visualization scene to be
@@ -83,6 +84,12 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 * elements in the map that correspond to the injected JDEECo agents 
 	 */
 	private final CheckBox onlyAgentsBox;
+
+	/**
+	 * The {@link CheckBox} for specifying whether only the event log expects
+	 * matsim events or jDEECo events
+	 */
+	private final CheckBox matsimLog;
 	
 	/**
 	 * Shown when a new scene is being loaded.
@@ -117,27 +124,45 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	private final List<ComboBox<String>> charsetBoxes;
 
 	/**
-	 * @param pathFields Text fields containing the paths to the source XML files.
-	 * @param okButton The button with which this {@link EventHandler} is associated.
-	 * @param onlyAgents The {@link CheckBox} that allows the user to select whether to show just those
-	 * elements in the map that correspond to the injected JDEECo agents 
-	 * @param pane The {@link GridPane} which contains {@link SceneImportHandler#progIndicator} 
-	 * and {@link SceneImportHandler#okButton}.
-	 * @param visualizer The {@link Visualizer} that will show the network that has been 
-	 * submitted by clicking the OK button.
-	 * @param durationField The field specifying the duration of the visualization
-	 * @param timeLineStatus Called whenever the visualization is started, paused or stopped
-	 * @param timeLineRate Called whenever the visualization is sped up or down
-	 * @param startAtField The field specifying the time (simulation time) at which the 
-	 * visualization should begin.
-	 * @param endAtField The field specifying the time (simulation time) at which the 
-	 * visualization should end.
-	 * @param charsetBoxes The combo boxes selecting the character encoding of the input text files
-	 * @throws NullPointerException When any of the parameters if null
+	 * @param pathFields
+	 *            Text fields containing the paths to the source XML files.
+	 * @param okButton
+	 *            The button with which this {@link EventHandler} is associated.
+	 * @param onlyAgents
+	 *            The {@link CheckBox} that allows the user to select whether to
+	 *            show just those elements in the map that correspond to the
+	 *            injected JDEECo agents
+	 * @param matsimLogBox
+	 * @param pane
+	 *            The {@link GridPane} which contains
+	 *            {@link SceneImportHandler#progIndicator} and
+	 *            {@link SceneImportHandler#okButton}.
+	 * @param visualizer
+	 *            The {@link Visualizer} that will show the network that has
+	 *            been submitted by clicking the OK button.
+	 * @param durationField
+	 *            The field specifying the duration of the visualization
+	 * @param timeLineStatus
+	 *            Called whenever the visualization is started, paused or
+	 *            stopped
+	 * @param timeLineRate
+	 *            Called whenever the visualization is sped up or down
+	 * @param startAtField
+	 *            The field specifying the time (simulation time) at which the
+	 *            visualization should begin.
+	 * @param endAtField
+	 *            The field specifying the time (simulation time) at which the
+	 *            visualization should end.
+	 * @param charsetBoxes
+	 *            The combo boxes selecting the character encoding of the input
+	 *            text files
+	 * @throws NullPointerException
+	 *             When any of the parameters if null
 	 */
-	public SceneImportHandler(List<TextField> pathFields, Button okButton, CheckBox onlyAgents, GridPane pane, Visualizer visualizer, 
-			TextField durationField, ChangeListener<Status> timeLineStatus, ChangeListener<Number> timeLineRate,
-			TextField startAtField, TextField endAtField, List<ComboBox<String>> charsetBoxes) throws NullPointerException {
+	public SceneImportHandler(List<TextField> pathFields, Button okButton, CheckBox onlyAgents, CheckBox matsimLog,
+			GridPane pane, Visualizer visualizer, TextField durationField, ChangeListener<Status> timeLineStatus,
+			ChangeListener<Number> timeLineRate, TextField startAtField, TextField endAtField,
+			List<ComboBox<String>> charsetBoxes) throws NullPointerException {
 		if ((pathFields == null) || (okButton == null) || (onlyAgents == null) || (pane == null) ||
 				(visualizer == null) || (durationField == null) || (timeLineStatus == null) ||
 				(timeLineRate == null) || (startAtField == null) || (endAtField == null)){
@@ -146,6 +171,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		this.pathFields = pathFields;
 		this.okButton = okButton;
 		this.onlyAgentsBox = onlyAgents;
+		this.matsimLog = matsimLog;
 		this.pane = pane;
 		this.visualizer = visualizer;
 		this.durationField = durationField;
@@ -490,10 +516,15 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 			Path eventsFile = Paths.get(eventField.getText());
 			String eventsFileEncoding = charsetBoxes.get(1).getSelectionModel().getSelectedItem();
 			InputStream eventsStream = getEventLogStream(eventsFile, eventsFileEncoding, startAt, endAt);
-			MatsimEventHandler matsimEventHandler = new MatsimEventHandler(
-					links, onlyAgents, startAt, endAt);
-			XMLextractor.run(eventsStream, eventsFileEncoding, matsimEventHandler);
-			cdb = buildCheckPointDatabase(matsimEventHandler.getEvents());
+			if (matsimLog.isSelected()) {
+				MatsimEventHandler matsimEventHandler = new MatsimEventHandler(links, onlyAgents, startAt, endAt);
+				XMLextractor.run(eventsStream, eventsFileEncoding, matsimEventHandler);
+				cdb = buildCheckPointDatabase(matsimEventHandler.getEvents());
+			} else {
+				JDEECoEventHandler jDEECoEventHandler = new JDEECoEventHandler(links, onlyAgents, startAt, endAt);
+				XMLextractor.run(eventsStream, eventsFileEncoding, jDEECoEventHandler);
+				cdb = buildCheckPointDatabase(jDEECoEventHandler.getEvents());
+			}
 			if (startAt == null){
 				minTime = cdb.getMinTime();
 			} else {
