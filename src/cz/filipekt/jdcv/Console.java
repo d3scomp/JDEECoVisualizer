@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +66,7 @@ import cz.filipekt.jdcv.util.Resources;
  * @author Tomas Filipek <tom.filipek@seznam.cz>, in Bad Hofgastein 2015
  * 
  */
-public class Console {
+public class Console implements EventHandler<Event> {
 	
 	/**
 	 * The amount of horizontal space between the buttons
@@ -76,6 +77,21 @@ public class Console {
 	 * Width and height of the icons placed inside the control buttons
 	 */
 	private final int buttonIconSize = 20;
+	
+	/**
+	 * The parent application
+	 */
+	private Visualizer visualizer;
+	
+	/**
+	 * The users write the scripts into this area.
+	 */
+	private TextArea inputArea;
+	
+	/**
+	 * The output from the scripts is shown here
+	 */
+	private TextArea outputArea;
 	
 	/**
 	 * The standard output of the JavaScript code is redirected here. 
@@ -269,6 +285,29 @@ public class Console {
 	private final String helpText = "Help";
 	
 	/**
+	 * To be executed from SceneImportHandler when the scene is prepared in
+	 * order to change the graphics of the visualized elements (people, nodesm
+	 * etc.)
+	 */
+	public void executeStartupScripts(Visualizer visualizer) {
+		this.visualizer = visualizer;
+		inputArea = new TextArea();
+		outputArea = new TextArea();
+
+		String scriptsFilePath = visualizer.getScriptsFilePath();
+		if (scriptsFilePath != null){
+			try {
+				byte[] bytes = Files.readAllBytes(new File(scriptsFilePath).toPath());
+				String script = new String(bytes, Charset.forName("UTF-8"));
+				inputArea.appendText(script);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		handle(null);
+	}
+	
+	/**
 	 * Fills the "buttonsBox" with the buttons that provide options to import a script
 	 * file, run the script, delete the input/output area, view help file.
 	 * @param buttonsBox The box to be filled with buttons
@@ -316,7 +355,7 @@ public class Console {
 		buttonsBox.getChildren().addAll(buttons);
 		buttonsBox.setAlignment(Pos.TOP_CENTER);
 		buttonsBox.setSpacing(buttonsSpacing);
-		runButton.setOnMouseClicked(new RunButtonHandler(visualizer, inputArea, outputArea));
+		runButton.setOnMouseClicked(this);
 		clearButton.setOnAction(new ClearButtonHandler(outputArea));
 		clearInputItem.setOnAction(new ClearButtonHandler(inputArea));
 		clearOutputItem.setOnAction(new ClearButtonHandler(outputArea));	
@@ -339,6 +378,7 @@ public class Console {
 		if (visualizer == null){
 			return;
 		}
+		this.visualizer = visualizer;
 		Stage stage = new Stage();
 		VBox pane = new VBox();
 		pane.setFillWidth(true);
@@ -347,13 +387,13 @@ public class Console {
 		Scene scene = new Scene(pane);
 		HBox buttonsBox = new HBox();
 		Label inputLabel = new Label("INPUT:");
-		TextArea inputArea = new TextArea();
+		inputArea = new TextArea();
 		ScrollPane inputAreaPane = new ScrollPane();
 		inputAreaPane.setContent(inputArea);
 		inputAreaPane.setFitToWidth(true);
 		inputAreaPane.setFitToHeight(true);
 		Label outputLabel = new Label("OUTPUT:");
-		TextArea outputArea = new TextArea();
+		outputArea = new TextArea();
 		ScrollPane outputAreaPane = new ScrollPane();
 		outputAreaPane.setContent(outputArea);
 		outputAreaPane.setFitToWidth(true);
@@ -503,79 +543,6 @@ public class Console {
 	}
 	
 	/**
-	 * Handler for the event that the user clicks the "run" button in the
-	 * scripting console window. Makes sure that the objects representing
-	 * the elements of the visualization are properly imported and the
-	 * script is executed.
-	 */
-	private class RunButtonHandler implements EventHandler<Event>{
-		
-		/**
-		 * The parent application
-		 */
-		private final Visualizer visualizer;
-		
-		/**
-		 * The users write the scripts into this area.
-		 */
-		private final TextArea inputArea;
-		
-		/**
-		 * The output from the scripts is shown here
-		 */
-		private final TextArea outputArea;
-
-		/**
-		 * @param visualizer The parent application
-		 * @param inputArea The users write the scripts into this area.
-		 * @param outputArea The output from the scripts is shown here
-		 */
-		public RunButtonHandler(Visualizer visualizer, TextArea inputArea, TextArea outputArea) {
-			this.visualizer = visualizer;
-			this.inputArea = inputArea;
-			this.outputArea = outputArea;
-		}
-
-		/**
-		 * Makes sure that the objects representing the elements of the 
-		 * visualization are properly imported and the script is executed.
-		 */
-		@Override
-		public void handle(Event arg0) {
-			MapScene scene = visualizer.getScene();
-			Map<String,NodePrefs> nodePrefs;
-			Map<String,LinkPrefs> linkPrefs;
-			Set<MembershipPrefs> membershipPrefs;
-			GlobalPrefs generalPrefs = new GlobalPrefs(scene, writer);
-			if (scene == null){
-				nodePrefs = new HashMap<>();
-				linkPrefs = new HashMap<>();
-				membershipPrefs = new HashSet<>();
-			} else {
-				nodePrefs = scene.getPreferences().nodePrefs(Console.getInstance().getWriter());
-				linkPrefs = scene.getPreferences().linkPrefs(Console.getInstance().getWriter());
-				membershipPrefs = scene.getPreferences().membershipPrefs(Console.getInstance().getWriter());
-			}
-			engine.put("out", System.out);
-			engine.put("nodes", nodePrefs);
-			engine.put("links", linkPrefs);
-			engine.put("memberships", membershipPrefs);
-			engine.put("general", generalPrefs);
-			try {
-				engine.eval(inputArea.getText());
-			} catch (ScriptException e) {
-				writer.append("Exception occured:\n");
-				writer.append(e.getLocalizedMessage() + "\n");
-			} finally {
-				String output = writer.toString();
-				clearWriterBuffer();
-				outputArea.appendText(output);
-			}
-		}
-		
-	}
-	
-	/**
 	 * Handler for the event that the user clicks one of the "clear" buttons 
 	 * in the scripting console window. Makes sure that the input/output area,
 	 * as specified by the constructor parameter, is cleared.
@@ -601,6 +568,43 @@ public class Console {
 		@Override
 		public void handle(ActionEvent arg0) {
 			textArea.setText("");
+		}
+	}
+
+	/**
+	 * Makes sure that the objects representing the elements of the 
+	 * visualization are properly imported and the script is executed.
+	 */
+	@Override
+	public void handle(Event arg0) {
+		MapScene scene = visualizer.getScene();
+		Map<String,NodePrefs> nodePrefs;
+		Map<String,LinkPrefs> linkPrefs;
+		Set<MembershipPrefs> membershipPrefs;
+		GlobalPrefs generalPrefs = new GlobalPrefs(scene, writer);
+		if (scene == null){
+			nodePrefs = new HashMap<>();
+			linkPrefs = new HashMap<>();
+			membershipPrefs = new HashSet<>();
+		} else {
+			nodePrefs = scene.getPreferences().nodePrefs(Console.getInstance().getWriter());
+			linkPrefs = scene.getPreferences().linkPrefs(Console.getInstance().getWriter());
+			membershipPrefs = scene.getPreferences().membershipPrefs(Console.getInstance().getWriter());
+		}
+		engine.put("out", System.out);
+		engine.put("nodes", nodePrefs);
+		engine.put("links", linkPrefs);
+		engine.put("memberships", membershipPrefs);
+		engine.put("general", generalPrefs);
+		try {
+			engine.eval(inputArea.getText());
+		} catch (ScriptException e) {
+			writer.append("Exception occured:\n");
+			writer.append(e.getLocalizedMessage() + "\n");
+		} finally {
+			String output = writer.toString();
+			clearWriterBuffer();
+			outputArea.appendText(output);
 		}
 	}
 	

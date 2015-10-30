@@ -15,7 +15,7 @@ public abstract class LinkRecord extends RuntimeLogRecord {
 	}
 	
 	public void setPerson(String person){
-		recordValues.put("vehicle", person);
+		recordValues.put("person", person);
 	}
 
 }

@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import cz.filipekt.jdcv.Visualizer;
 import cz.filipekt.jdcv.util.CharsetNames;
 import cz.filipekt.jdcv.util.Dialog;
 import cz.filipekt.jdcv.util.Dialog.Type;
@@ -157,6 +158,12 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	 * the visualization should end
 	 */
 	private final String endAtPreamble = "end_at";
+
+	/**
+	 * First block of the line which specifies the scripts file,  
+	 * in the config file
+	 */
+	private final String scriptPreamble = "scripts";
 	
 	/**
 	 * Fired when user clicks the "load" button next to the config file text field.
@@ -253,6 +260,9 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 							case endAtPreamble:
 								processNumberDef(blocks, endAtField, lineNo);
 								break;
+							case scriptPreamble:
+								processPathDef(blocks, lineNo);
+								break;
 							default:
 								break;
 						}
@@ -272,6 +282,20 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 		}
 	}
 	
+	private void processPathDef(String[] blocks, int lineNo) throws ConfigFileLoader.ConfigFileFormatException{
+		if ((blocks != null) && (blocks.length >= 1)){
+			if (blocks.length > 2){
+				throw new ConfigFileFormatException("[Line " + lineNo + 
+						"]: contains too many blocks delimited by \"" + delimiter + "\"");
+			}
+			Visualizer.getInstance().setScriptsFilePath(blocks[1]);
+		} else {
+			throw new ConfigFileFormatException("[Line " + (lineNo+1) + 
+					"]: contains too few blocks delimited by \"" + delimiter + "\"");
+		}
+		
+	}
+
 	/**
 	 * Processes those lines of the config file that specify paths to the input XML files
 	 * @param blocks A line from the config file, parsed by the delimiter {@link ConfigFileLoader#delimiter}

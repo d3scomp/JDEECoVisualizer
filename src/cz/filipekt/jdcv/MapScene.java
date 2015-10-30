@@ -81,6 +81,16 @@ import javafx.util.Duration;
 public class MapScene {
 	
 	/**
+	 * Width of the image that represents a node in the visualization
+	 */
+	private final int NODE_IMAGE_WIDTH = 48;
+	
+	/**
+	 * Height of the image that represents a node in the visualization
+	 */
+	private final int NODE_IMAGE_HEIGHT = 42;
+	
+	/**
 	 * Contains the network nodes. Keys = node IDs, values = {@link MyNode} node representations.
 	 */
 	private final Map<String,MyNode> nodes;
@@ -557,20 +567,87 @@ public class MapScene {
 	/**
 	 * Maps each link ID to the corresponding link visualization
 	 */
-	private final Map<String,LinkCorridor> linkCorridors = new HashMap<>();	
+	private final Map<String,LinkCorridor> linkCorridors = new HashMap<>();
+
+	/**
+	 * Holds the provider of people's shapes in order to be preserved while invoking updateNodes().
+	 */
+	private ShapeProvider peopleShapeProvider;	
 	
+	/**
+	 * Updates the graphics of the nodes: instead of nodes being visualized as
+	 * circles, the nodes' background images are visualized.
+	 * @see update()
+	 */
+	public void updateNodes(ShapeProvider peopleShapeProvider, String[] selectedPeople, ShapeProvider nodesShapeProvider, String[] selectedNodes) throws IOException{
+		timeLine.stop();
+		timeLine.getKeyFrames().clear();
+		mapContainer.getChildren().clear();
+		
+		Map<Node,MyNode> newNodes = generateNodesWithBGImage(nodesShapeProvider,selectedNodes);
+		circles.clear();
+		circles.putAll(newNodes);
+		Map<String,LinkCorridor> newCorridors = generateLinkCorridors();
+		linkCorridors.clear();
+		linkCorridors.putAll(newCorridors); 
+		for (LinkCorridor corridor : linkCorridors.values()){
+			mapContainer.getChildren().add(corridor.getVisualization());
+		}
+		if (peopleShapeProvider == null) {
+			peopleShapeProvider = this.peopleShapeProvider;
+		}
+		produceShapes(peopleShapeProvider, selectedPeople);
+		addRecordingFrames();
+		setBackground();
+		mapContainer.getChildren().addAll(circles.keySet());
+		mapContainer.getChildren().addAll(personShapes.values());
+		mapContainer.getChildren().addAll(ensembleShapes.values());
+		moveShapesToFront();
+	}
+	
+	/**
+	 * Generated the visualization of the nodes according to their background images. 
+	 * @see generateCircles()
+	 */
+	private Map<Node, MyNode> generateNodesWithBGImage(ShapeProvider provider, String[] selectedNodes) throws IOException {
+		Map<Node,MyNode> res = new HashMap<>();
+		for (MyNode node : nodes.values()){
+			double x = matsimToVisual.transformX(node.getX());
+			double y = matsimToVisual.transformY(node.getY());
+			Node shape = provider.getNewShape();
+			if (shape != null){
+				shape.setTranslateX(x);
+				shape.setTranslateY(y);
+			}
+			res.put(shape, node);		
+			
+			final Map<String,String> data = new LinkedHashMap<>();
+			data.put("Node ID", node.getId());
+			data.put("x-coordinate", node.getX() + "");
+			data.put("y-coordinate", node.getY() + "");
+			shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent arg0) {
+					InfoPanel.getInstance().setInfo("Node selected:", data);
+				}
+			});
+		}
+		return res;
+	}
+
 	/**
 	 * Updates the collections of node instances that represent the map elements,
 	 * both mobile (agents, ensemble memberships) and immobile (nodes,links).
 	 * Also, the {@link MapScene#mapContainer} holding these {@link Shape} instances for
 	 * visualizing purposes is updated with the new values.
 	 * 
-	 * @param shapeProvider Used for generating the visualizations of people
+	 * @param peopleShapeProvider Used for generating the visualizations of people
 	 * @param justMovables If true, only the moveable objects (people,ensembles) will be updated 
 	 * @param selectedPeople People whose visualizations will be updated
 	 * @throws IOException  When a person shape could not be loaded for any reason
 	 */
-	public void update(ShapeProvider shapeProvider, boolean justMovables, String[] selectedPeople) throws IOException{
+	public void update(ShapeProvider peopleShapeProvider, boolean justMovables, String[] selectedPeople) throws IOException{
 		timeLine.stop();
 		timeLine.getKeyFrames().clear();
 		mapContainer.getChildren().clear();
@@ -585,7 +662,8 @@ public class MapScene {
 		for (LinkCorridor corridor : linkCorridors.values()){
 			mapContainer.getChildren().add(corridor.getVisualization());
 		}
-		produceShapes(shapeProvider, selectedPeople);
+		this.peopleShapeProvider = peopleShapeProvider;
+		produceShapes(peopleShapeProvider, selectedPeople);
 		addRecordingFrames();
 		setBackground();
 		mapContainer.getChildren().addAll(circles.keySet());
@@ -1065,7 +1143,8 @@ public class MapScene {
 	private final List<EnsembleEvent> ensembleEvents;
 	
 	/**
-	 * Changes the image which represents each person in the visualization
+	 * Changes the image which represents each person in the visualization.
+	 * IMPORTANT: To be invoked before the changeNodeImage(), as it reverts the nodes to circles.
 	 * @param imageName Name of the new image, or (if the next parameter is false) a path to the image. 
 	 * @param isResource If true, the previous parameter specifies a resource name, else it specifies
 	 * a path to a file.
@@ -1081,9 +1160,41 @@ public class MapScene {
 			if (imageName == null){
 				provider = circleProvider;
 			} else {
-				provider = new ImageProvider(isResource, imageName, personImageWidth);
+				provider = new ImageProvider(isResource, imageName, personImageWidth, personImageWidth);
 			}
 			update(provider, false, selectedPeople);
+			if (status == Status.RUNNING){
+				timeLine.playFrom(time);
+			} else if (status == Status.PAUSED){
+				timeLine.playFrom(time);
+				timeLine.pause();
+			} else {
+				timeLine.stop();			
+			}
+		}
+	}
+	
+	/**
+	 * Changes the image which represents each node in the visualization.
+	 * IMPORTANT: To be invoked after the changePersonImage().  
+	 * @param imageName Name of the new image, or (if the next parameter is false) a path to the image. 
+	 * @param isResource If true, the previous parameter specifies a resource name, else it specifies
+	 * a path to a file.
+	 * @param selectedPeople Nodes whose visualizations will be updated
+	 * @throws IOException When the specified image couldn't be found or read from
+	 */
+	public void changeNodeImage(String imageName, boolean isResource, String[] selectedNodes) throws IOException {
+		if (timeLine != null){
+			Duration time = timeLine.getCurrentTime();
+			Status status = timeLine.getStatus();
+			timeLine.stop();
+			ShapeProvider provider = null;
+			if (imageName == null){
+				provider = circleProvider;
+			} else {
+				provider = new ImageProvider(isResource, imageName, NODE_IMAGE_WIDTH, NODE_IMAGE_HEIGHT);
+			}
+			updateNodes(null, null, provider,selectedNodes);
 			if (status == Status.RUNNING){
 				timeLine.playFrom(time);
 			} else if (status == Status.PAUSED){

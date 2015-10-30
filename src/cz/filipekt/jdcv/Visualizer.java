@@ -460,7 +460,21 @@ public class Visualizer extends Application {
 	 * events or jDEECo events
 	 */
 	private final CheckBox matsimLogBox = new CheckBox();
+
+	/**
+	 * Path to the acmescripts that can be used to customize the visualization
+	 * graphics at startup
+	 */
+	private String scriptsFilePath;
 	
+	public String getScriptsFilePath() {
+		return scriptsFilePath;
+	}
+
+	public void setScriptsFilePath(String scriptsFilePath) {
+		this.scriptsFilePath = scriptsFilePath;
+	}
+
 	/**
 	 * Prepares and initializes the contents of @link Visualizer#importSceneGrid}.
 	 */

@@ -22,6 +22,12 @@ public class GlobalPrefs {
 	 * Used for logging of the carried out operations
 	 */
 	private final Writer outputWriter;
+
+	/**
+	 * Holds the path to the folder with the additional resources (e.g. pngs)
+	 * used in custom visualization of persons and nodes
+	 */
+	private String additionalResourcesPath;
 	
 	/**
 	 * @param scene The simulated situation 
@@ -32,6 +38,10 @@ public class GlobalPrefs {
 		this.outputWriter = writer;
 	}
 
+	public void setAdditionalResourcesPath(String additionalResourcesPath) {
+		this.additionalResourcesPath = additionalResourcesPath;
+	}
+	
 	/**
 	 * Given a path to an image and an array of person IDs, each of the persons will be 
 	 * represented by the image in the visualization.
@@ -43,10 +53,30 @@ public class GlobalPrefs {
 			printNoOp();
 		} else {
 			try {
-				scene.changePeopleImage(path, false, selectedPeople);
+				scene.changePeopleImage(additionalResourcesPath + path, false, selectedPeople);
 				write("Image for persons has been successfully changed.");
 			} catch (Exception ex){
 				write("Image for persons couldn't be changed.");
+			}
+		}
+	}
+	
+	/**
+	 * Given a path to an image and an array of node IDs, each of the nodes will be 
+	 * represented by the image in the visualization.
+	 * @param path The image to use for visualizing nodes
+	 * @param selectedNodes Nodes whose visualizations will be updated
+	 */
+	public void setNodeImage(String path, String... selectedNodes) {
+		if (scene == null){
+			printNoOp();
+		} else { 
+			try {
+				scene.changeNodeImage(additionalResourcesPath + path, false, selectedNodes);
+				write("Image for nodes has been successfully changed.");
+			} catch (Exception ex){
+				write("Image for nodes couldn't be changed.");
+				write("Exception: " + ex.toString());
 			}
 		}
 	}

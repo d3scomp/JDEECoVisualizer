@@ -259,6 +259,8 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 								@Override
 								public void run() {
 									closeProgressIndiciator();
+									// we have prepared the scene, now we change the graphics
+									Console.getInstance().executeStartupScripts(visualizer);
 								}
 							});
 							Platform.runLater(new Runnable() {
@@ -661,9 +663,14 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		private final String image;
 		
 		/**
-		 * Width (a also height) of the provided image
+		 * Width of the provided image
 		 */
 		private final int imageWidth;
+		
+		/**
+		 * Height of the provided image
+		 */
+		private final int imageHeight;
 		
 		/**
 		 * If true, the specified image is looked for in the application resources.
@@ -679,9 +686,10 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		 * @param imageWidth Width (a also height) of the provided image
 		 * @throws FileNotFoundException When the image could not be found
 		 */
-		public ImageProvider(boolean isResource, String image, int imageWidth) throws FileNotFoundException {
+		public ImageProvider(boolean isResource, String image, int imageWidth, int imageHeight) throws FileNotFoundException {
 			this.image = image;
 			this.imageWidth = imageWidth;
+			this.imageHeight = imageHeight;
 			this.isResource = isResource;
 			try {
 				getNewShape();
@@ -701,11 +709,11 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 				res = Resources.getImageView(image, imageWidth);
 			} else {
 				InputStream stream = Files.newInputStream(Paths.get(image));
-				Image image = new Image(stream, imageWidth, imageWidth, true, false);
+				Image image = new Image(stream, imageWidth, imageHeight, true, false);
 				res = new ImageView(image);
 			}
 			res.setLayoutX(-(imageWidth/2));
-			res.setLayoutY(-(imageWidth/2));
+			res.setLayoutY(-(imageHeight/2));
 			res.setOnMouseEntered(new EventHandler<MouseEvent>() {
 
 				@Override
