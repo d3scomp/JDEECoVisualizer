@@ -132,7 +132,9 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 *            The {@link CheckBox} that allows the user to select whether to
 	 *            show just those elements in the map that correspond to the
 	 *            injected JDEECo agents
-	 * @param matsimLogBox
+	 * @param matsimLog
+	 *            The {@link CheckBox} for specifying whether only the event log
+	 *            expects matsim events or jDEECo events
 	 * @param pane
 	 *            The {@link GridPane} which contains
 	 *            {@link SceneImportHandler#progIndicator} and
@@ -357,7 +359,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		}
 		String durationText = durationField.getText();
 		int duration = 60;
-		if (matsimEventsPresent){
+		if (eventsPresent){
 			try {
 				if ((durationText != null) && (!durationText.isEmpty())){
 					duration = Integer.parseInt(durationText);
@@ -371,32 +373,42 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	
 	/**
 	 * Checks which input fields have been filled in, out of the three specifying the XML input files.
-	 * The (un)availability is recorded to {@link SceneImportHandler#matsimEventsPresent} and
-	 * {@link SceneImportHandler#ensembleEventsPresent}
+	 * The (un)availability is recorded to {@link SceneImportHandler#eventsFilePresent} and
+	 * {@link SceneImportHandler#ensembleFilePresent}
 	 */
 	private void determineSpecifiedFiles(){
 		TextField eventField = pathFields.get(1);
 		if ((eventField == null) || (eventField.getText() == null) || eventField.getText().isEmpty()){
-			matsimEventsPresent = false;
+			eventsFilePresent = false;
 		} else {
-			matsimEventsPresent = true;
+			eventsFilePresent = true;
 		}
 		TextField ensembleField = pathFields.get(2);
-		if ((!matsimEventsPresent) || (ensembleField == null) || (ensembleField.getText() == null) || 
+		if ((!eventsFilePresent) || (ensembleField == null) || (ensembleField.getText() == null) || 
 				ensembleField.getText().isEmpty()){
-			ensembleEventsPresent = false;
+			ensembleFilePresent = false;
 		} else {
-			ensembleEventsPresent = true;
+			ensembleFilePresent = true;
 		}	
 	}
 	
 	/**
-	 * If true, a file containing the MATSIM event log has been specified by the user.
+	 * If true, a file containing the MATSIM or the jDEECo event log has been specified by the user.
 	 */
-	private boolean matsimEventsPresent;
-	
+	private boolean eventsFilePresent;
+
 	/**
 	 * If true, a file containing the ensemble event log has been specified by the user.
+	 */
+	private boolean ensembleFilePresent;
+	
+	/**
+	 * If true, there are MATSIM or jDEECo events 
+	 */
+	private boolean eventsPresent;
+	
+	/**
+	 * If true, there are ensemble events
 	 */
 	private boolean ensembleEventsPresent;
 	
@@ -475,7 +487,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		sceneBuilder.setCheckpointDb(cdb);
 		sceneBuilder.setEnsembleEvents(ensembleEvents);
 		sceneBuilder.setControlsBar(visualizer.getControlsBar());
-		sceneBuilder.setMatsimEventsPresent(matsimEventsPresent);
+		sceneBuilder.setMatsimEventsPresent(eventsPresent);
 		sceneBuilder.setEnsembleEventsPresent(ensembleEventsPresent);
 		sceneBuilder.setPersonImageWidth(8 * personCircleRadius);
 		sceneBuilder.setCircleProvider(circleProvider);
@@ -487,7 +499,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 			
 			@Override
 			public void run() {					
-				visualizer.setScene(scene, matsimEventsPresent);					
+				visualizer.setScene(scene, eventsPresent);					
 			}
 		});		
 	}
@@ -512,19 +524,46 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 			TextField eventField, TextField ensembleField, Map<String,MyLink> links) 
 					throws IOException, SelectionTooBigException, ElementTooLargeException, 
 					ParserConfigurationException, SAXException{
-		if(matsimEventsPresent){
+		if(eventsFilePresent){
 			Path eventsFile = Paths.get(eventField.getText());
 			String eventsFileEncoding = charsetBoxes.get(1).getSelectionModel().getSelectedItem();
+			List<MatsimEvent> events;
 			InputStream eventsStream = getEventLogStream(eventsFile, eventsFileEncoding, startAt, endAt);
-			if (matsimLog.isSelected()) {
+			
+			if (matsimLog.isSelected()) { // matsim events expected, ensembles in separate file 
+				
+				if (ensembleFilePresent){ 
+					Path ensembleFile = Paths.get(ensembleField.getText());
+					String ensembleFileEncoding = charsetBoxes.get(2).getSelectionModel().getSelectedItem();
+					EnsembleHandler ensembleHandler = new EnsembleHandler(startAt, endAt);
+					XMLextractor.run(ensembleFile, ensembleFileEncoding, ensembleHandler);
+					ensembleEvents = ensembleHandler.getEvents();
+					ensembleEventsPresent = !ensembleEvents.isEmpty();
+				} else {
+					ensembleEventsPresent = false;
+				}
+				
 				MatsimEventHandler matsimEventHandler = new MatsimEventHandler(links, onlyAgents, startAt, endAt);
 				XMLextractor.run(eventsStream, eventsFileEncoding, matsimEventHandler);
-				cdb = buildCheckPointDatabase(matsimEventHandler.getEvents());
-			} else {
+				events = matsimEventHandler.getEvents();
+				
+			} else { // a single file containing jDEECo events and ensemble events is expected
+				
+				Path ensembleFile = Paths.get(eventField.getText());
+				String ensembleFileEncoding = charsetBoxes.get(1).getSelectionModel().getSelectedItem();
+				EnsembleHandler ensembleHandler = new EnsembleHandler(startAt, endAt);
+				XMLextractor.run(ensembleFile, ensembleFileEncoding, ensembleHandler);
+				ensembleEvents = ensembleHandler.getEvents();
+				ensembleEventsPresent = !ensembleEvents.isEmpty();
+								
 				JDEECoEventHandler jDEECoEventHandler = new JDEECoEventHandler(links, onlyAgents, startAt, endAt);
 				XMLextractor.run(eventsStream, eventsFileEncoding, jDEECoEventHandler);
-				cdb = buildCheckPointDatabase(jDEECoEventHandler.getEvents());
+				events = jDEECoEventHandler.getEvents();
 			}
+			
+			cdb = buildCheckPointDatabase(events);
+			eventsPresent = !events.isEmpty();
+			
 			if (startAt == null){
 				minTime = cdb.getMinTime();
 			} else {
@@ -535,13 +574,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 			} else {
 				maxTime = Math.min(endAt * 1.0, cdb.getMaxTime());
 			}
-			if (ensembleEventsPresent){
-				Path ensembleFile = Paths.get(ensembleField.getText());
-				String ensembleFileEncoding = charsetBoxes.get(2).getSelectionModel().getSelectedItem();									
-				EnsembleHandler ensembleHandler = new EnsembleHandler(startAt, endAt);
-				XMLextractor.run(ensembleFile, ensembleFileEncoding, ensembleHandler);
-				ensembleEvents = ensembleHandler.getEvents();
-			}
+			
 		} else {
 			ensembleEvents = null;
 			minTime = 0;

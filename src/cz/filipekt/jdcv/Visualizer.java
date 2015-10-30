@@ -505,7 +505,7 @@ public class Visualizer extends Application {
 	 * @param durationField The input field for specifying the desired duration of the visualization
 	 * @param onlyComponentsBox The checkbox for specifying whether only the injected JDEECo
 	 * components should be visualized
-	 * @param matsimLogBox2 
+	 * @param matsimLogBox
 	 * @param startAtField Input field specifying at which simulation time should the visualization start
 	 * @param endAtField Input field specifying at which simulation time should the visualization end
 	 * @return The number of the current row, as the "import scene" page is built one row at a time
@@ -514,6 +514,21 @@ public class Visualizer extends Application {
 			CheckBox onlyComponentsBox, CheckBox matsimLogBox, TextField startAtField, TextField endAtField){
 		Label matsimLogLabel = new Label("Expect matsim logs:");
 		matsimLogBox.setSelected(false);
+		matsimLogBox.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				
+				CheckBox source = (CheckBox) event.getSource();
+				for (TextField f : fields){
+					String id = f.getId();
+					if ((id != null) && (id.equals("EnsembleEventsTextField"))) {
+						f.setDisable(!source.isSelected());
+					}
+				}
+				
+			}
+		});	
 		pane.add(matsimLogLabel, 0, row);
 		pane.add(matsimLogBox, 1, row);
 		row += 1;		
@@ -552,7 +567,12 @@ public class Visualizer extends Application {
 			List<ComboBox<String>> charsets, List<Button> chooserButtons, double encodingBoxWidth,
 			double selectButtonWidth){
 		for (int i = 0; i < labels.size(); i++){
-			fields.add(new TextField());
+			TextField f = new TextField();
+			if (labels.get(i).getText().equals("Ensemble event log:")) {
+				f.setDisable(true);
+				f.setId("EnsembleEventsTextField");
+			}
+			fields.add(f);
 			Button chooserButton = new Button(selectButtonText);
 			chooserButton.setPrefWidth(selectButtonWidth);
 			chooserButtons.add(chooserButton);
