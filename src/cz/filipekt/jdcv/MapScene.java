@@ -441,6 +441,41 @@ public class MapScene {
 	}
 	
 	/**
+	 * Generated the visualization of the nodes according to their background images. 
+	 * @see generateCircles()
+	 */
+	private Map<Node, MyNode> generateNodesWithBackgroundImage(ShapeProvider provider, String[] selectedNodes) throws IOException {
+		Map<Node,MyNode> res = new HashMap<>();
+		for (MyNode node : nodes.values()){
+			
+			double x = matsimToVisual.transformX(node.getX());
+			double y = matsimToVisual.transformY(node.getY());
+			Node shape = provider.getNewShape();
+			
+			if (shape != null){
+				shape.setTranslateX(x);
+				shape.setTranslateY(y);
+			}
+			res.put(shape, node);		
+			
+			final Map<String,String> data = new LinkedHashMap<>();
+			data.put("Node ID", node.getId());
+			data.put("x-coordinate", node.getX() + "");
+			data.put("y-coordinate", node.getY() + "");
+			
+			shape.setOnMouseEntered(null);
+			shape.setOnMouseExited(null);
+			shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent arg0) {
+					InfoPanel.getInstance().setInfo("Node selected:", data);
+				}
+			});
+		}
+		return res;
+	}
+	
+	/**
 	 * Makes sure that when the user clicks on the visualization of the link,
 	 * detailed info about the link is shown in the info-panel.
 	 * @param link Detailed info about this link will be shown
@@ -584,7 +619,7 @@ public class MapScene {
 		timeLine.getKeyFrames().clear();
 		mapContainer.getChildren().clear();
 		
-		Map<Node,MyNode> newNodes = generateNodesWithBGImage(nodesShapeProvider,selectedNodes);
+		Map<Node,MyNode> newNodes = generateNodesWithBackgroundImage(nodesShapeProvider,selectedNodes);
 		circles.clear();
 		circles.putAll(newNodes);
 		Map<String,LinkCorridor> newCorridors = generateLinkCorridors();
@@ -605,37 +640,6 @@ public class MapScene {
 		moveShapesToFront();
 	}
 	
-	/**
-	 * Generated the visualization of the nodes according to their background images. 
-	 * @see generateCircles()
-	 */
-	private Map<Node, MyNode> generateNodesWithBGImage(ShapeProvider provider, String[] selectedNodes) throws IOException {
-		Map<Node,MyNode> res = new HashMap<>();
-		for (MyNode node : nodes.values()){
-			double x = matsimToVisual.transformX(node.getX());
-			double y = matsimToVisual.transformY(node.getY());
-			Node shape = provider.getNewShape();
-			if (shape != null){
-				shape.setTranslateX(x);
-				shape.setTranslateY(y);
-			}
-			res.put(shape, node);		
-			
-			final Map<String,String> data = new LinkedHashMap<>();
-			data.put("Node ID", node.getId());
-			data.put("x-coordinate", node.getX() + "");
-			data.put("y-coordinate", node.getY() + "");
-			shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent arg0) {
-					InfoPanel.getInstance().setInfo("Node selected:", data);
-				}
-			});
-		}
-		return res;
-	}
-
 	/**
 	 * Updates the collections of node instances that represent the map elements,
 	 * both mobile (agents, ensemble memberships) and immobile (nodes,links).
