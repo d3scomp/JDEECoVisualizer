@@ -752,7 +752,7 @@ public class MapScene {
 	 * @param visible If true, it makes the {@link Shape} instances representing the map links visible.
 	 * Otherwise it makes them invisible.
 	 */
-	void setLinksVisible(boolean visible){
+	public void setLinksVisible(boolean visible){
 		for (LinkCorridor corridor : linkCorridors.values()){
 			corridor.getVisualization().setVisible(visible);
 		}

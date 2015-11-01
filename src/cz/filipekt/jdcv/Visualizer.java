@@ -462,11 +462,16 @@ public class Visualizer extends Application {
 	private final CheckBox matsimLogBox = new CheckBox();
 
 	/**
+	 * The checkbox specifying if just the links will be shown upon initialization
+	 */
+	private final CheckBox showLinksBox = new CheckBox("Show Links");
+	
+	/**
 	 * Path to the acmescripts that can be used to customize the visualization
 	 * graphics at startup
 	 */
 	private String scriptsFilePath;
-	
+
 	public String getScriptsFilePath() {
 		return scriptsFilePath;
 	}
@@ -502,7 +507,7 @@ public class Visualizer extends Application {
 		row += 2;		
 		prepareConfigLoaderRow(importSceneGrid, row, fields, charsets, durationField, 
 				encodingBoxWidth, selectButtonWidth, loadButtonWidth, onlyComponentsBox,
-				startAtField, endAtField);
+				startAtField, endAtField, showLinksBox);
 		row += 2;
 		okButton.setOnAction(new SceneImportHandler(fields, okButton, onlyComponentsBox, matsimLogBox, importSceneGrid,
 				Visualizer.this, durationField, timeLineStatus, timeLineRate, startAtField, endAtField, charsets));
@@ -635,11 +640,12 @@ public class Visualizer extends Application {
 	 * @param onlyComponentsBox The checkbox specifying if just the injected JDEECo agents shall be visualized
 	 * @param startAtField The field specifying the where in the event log should the visualization begin
 	 * @param endAtField The field specifying the where in the event log should the visualization end
+	 * @param showLinks 
 	 */
 	private void prepareConfigLoaderRow(GridPane pane, int row, List<TextField> fields, 
 			List<ComboBox<String>> charsets, TextField durationField, double encodingBoxWidth,
 			double selectButtonWidth, double loadButtonWidth, CheckBox onlyComponentsBox,
-			TextField startAtField, TextField endAtField){
+			TextField startAtField, TextField endAtField, CheckBox showLinksBox){
 		Label configFileLabel = new Label("Specify Configuration File:");
 		TextField configFileField = new TextField();
 		configFileField.setPrefWidth(inputFieldsWidth);
@@ -656,7 +662,7 @@ public class Visualizer extends Application {
 		configFileLoad.setPrefWidth(loadButtonWidth);
 		ConfigFileLoader configLoader = new ConfigFileLoader(
 				configFileField, configFileCharsets, fields, charsets, durationField, onlyComponentsBox,
-				startAtField, endAtField); 
+				startAtField, endAtField, showLinksBox); 
 		configFileLoad.setOnAction(configLoader);
 		pane.add(configFileLabel, 0, row);
 		pane.add(configFileField, 1, row);
@@ -834,7 +840,6 @@ public class Visualizer extends Application {
 		showNodesBox.setSelected(true);
 		showNodesBox.setOnAction(new ShowNodesHandler(this, showNodesBox));
 		graphicsColumn.getChildren().add(showNodesBox);
-		final CheckBox showLinksBox = new CheckBox("Show links");
 		showLinksBox.setSelected(true);
 		showLinksBox.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -1253,5 +1258,16 @@ public class Visualizer extends Application {
 	 */
 	public void clickCloseScene(){
 		closeThisSceneItem.fire();
+	}
+	
+	/**
+	 * Hook to be able to toggle the visibility of Links, according to the value
+	 * of the show links checkbox. To be used upon initialization for
+	 * showing/hiding the links.
+	 * 
+	 * @param isLinksVisible
+	 */
+	public void toggleLinksVisibility() {
+		scene.setLinksVisible(showLinksBox.isSelected());
 	}
 }

@@ -261,7 +261,9 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 									closeProgressIndiciator();
 									// we have prepared the scene, now we change the graphics
 									Console.getInstance().executeStartupScripts(visualizer);
-								}
+									// we changed the graphics, now we set the default values to the scene
+									Visualizer.getInstance().toggleLinksVisibility();
+								} 
 							});
 							Platform.runLater(new Runnable() {
 								
@@ -442,6 +444,15 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 */
 	private List<EnsembleEvent> ensembleEvents;
 	
+	/** 
+	 * If true, then links are visualized upon creation of the new scene 
+	 */
+	private boolean isLinksVisible;
+	
+	public void setIsLinksVisible(boolean isLinksVisible) {
+		this.isLinksVisible = isLinksVisible;
+	}
+	
 	/**
 	 * Creates a {@link MapScene} representation of the data provided by the input
 	 * files. The instance is then given to the {@link Visualizer} instance which
@@ -498,9 +509,9 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		final MapScene scene = sceneBuilder.build();
 		scene.update(circleProvider, false, null);
 		Platform.runLater(new Runnable() {
-			
+
 			@Override
-			public void run() {					
+			public void run() {			
 				visualizer.setScene(scene, eventsPresent);					
 			}
 		});		

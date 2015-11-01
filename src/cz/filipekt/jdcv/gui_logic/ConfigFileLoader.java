@@ -86,6 +86,11 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	private final TextField endAtField;
 
 	/**
+	 * The checkbox specifying whether the links will be shown upon initialization
+	 */
+	private final CheckBox showLinksBox;
+	
+	/**
 	 * @param configFileField The text field containing the config file path
 	 * @param configFileCharsets The combo-box for selecting the text encoding of the config file
 	 * @param fields The text fields where the paths to the input XML files will be filled in
@@ -97,7 +102,7 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	 */
 	public ConfigFileLoader(TextField configFileField, ComboBox<String> configFileCharsets, 
 			List<TextField> fields, List<ComboBox<String>> charsetBoxes, TextField durationField,
-			CheckBox justAgentsBox, TextField startAtField, TextField endAtField) {
+			CheckBox justAgentsBox, TextField startAtField, TextField endAtField, CheckBox showLinksBox) {
 		this.configFileField = configFileField;
 		this.configFileCharsets = configFileCharsets;
 		this.durationField = durationField;
@@ -110,6 +115,7 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 		this.justAgentsBox = justAgentsBox;
 		this.startAtField = startAtField;
 		this.endAtField = endAtField;
+		this.showLinksBox = showLinksBox;
 	}
 
 	/**
@@ -164,6 +170,12 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	 * in the config file
 	 */
 	private final String scriptPreamble = "scripts";
+
+	/**
+	 * First block of the line which specifies whether the links will be shown
+	 * upon initialization
+	 */
+	private final String showLinksFlagPreamble = "showLinks";
 	
 	/**
 	 * Fired when user clicks the "load" button next to the config file text field.
@@ -261,7 +273,10 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 								processNumberDef(blocks, endAtField, lineNo);
 								break;
 							case scriptPreamble:
-								processPathDef(blocks, lineNo);
+								processScriptLine(blocks, lineNo);
+								break;
+							case showLinksFlagPreamble:
+								processBoolean(blocks, showLinksBox, lineNo);
 								break;
 							default:
 								break;
@@ -282,7 +297,7 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 		}
 	}
 	
-	private void processPathDef(String[] blocks, int lineNo) throws ConfigFileLoader.ConfigFileFormatException{
+	private void processScriptLine(String[] blocks, int lineNo) throws ConfigFileLoader.ConfigFileFormatException{
 		if ((blocks != null) && (blocks.length >= 1)){
 			if (blocks.length > 2){
 				throw new ConfigFileFormatException("[Line " + lineNo + 
