@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
+import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEvent;
 import cz.filipekt.jdcv.SceneImportHandler.ImageProvider;
 import cz.filipekt.jdcv.SceneImportHandler.ShapeProvider;
 import cz.filipekt.jdcv.checkpoints.CheckPoint;
@@ -93,7 +94,7 @@ public class MapScene {
 	/**
 	 * Contains the network nodes. Keys = node IDs, values = {@link MyNode} node representations.
 	 */
-	private final Map<String,MyNode> nodes;
+	private Map<String,MyNode> nodes;
 	
 	/**
 	 * Contains the network links. Keys = link IDs, values = {@link MyLink} link representations.
@@ -109,13 +110,13 @@ public class MapScene {
 	 * Factor by which the x-coordinate scale (from MATSIM map) must be multiplied so 
 	 * that the resulting network view fits nicely into the window of preferred width 
 	 */
-	private final double widthFactor;
+	private double widthFactor;
 	
 	/**
 	 * Factor by which the y-coordinate scale (from MATSIM map) must be multiplied so 
 	 * that the resulting network view fits nicely into the window of preferred height 
 	 */
-	private final double heightFactor;
+	private double heightFactor;
 
 	/**
 	 * Radius (in pixels) of the {@link Shape} objects representing the network nodes.
@@ -177,6 +178,16 @@ public class MapScene {
 	 */
 	public boolean isRecordingInProgress() {
 		return recordingInProgress;
+	}
+	
+	/**
+	 * Holds the path to the folder with the additional resources (e.g. pngs)
+	 * used in custom visualization of persons and nodes
+	 */
+	private String additionalResourcesPath;
+	
+	public void setAdditionalResourcesPath(String additionalResourcesPath) {
+		this.additionalResourcesPath = additionalResourcesPath;
 	}
 	
 	/**
@@ -440,6 +451,38 @@ public class MapScene {
 		return res;
 	}
 	
+	// TODO move this to external "plugin"
+	/**
+	 * 
+	 */
+	private Node generateNodeWithBackgroundImage(ShapeProvider provider, MyNode node) throws IOException {
+
+		double x = matsimToVisual.transformX(node.getX());
+		double y = matsimToVisual.transformY(node.getY());
+		Node shape = provider.getNewShape();
+
+		if (shape != null) {
+			shape.setTranslateX(x);
+			shape.setTranslateY(y);
+		}
+
+		final Map<String, String> data = new LinkedHashMap<>();
+		data.put("Node ID", node.getId());
+		data.put("x-coordinate", node.getX() + "");
+		data.put("y-coordinate", node.getY() + "");
+
+		shape.setOnMouseEntered(null);
+		shape.setOnMouseExited(null);
+		shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent arg0) {
+				InfoPanel.getInstance().setInfo("Node selected:", data);
+			}
+		});
+		return shape;
+	}
+	// move this to external "plugin"
+	
 	/**
 	 * Generated the visualization of the nodes according to their background images. 
 	 * @see generateCircles()
@@ -527,17 +570,17 @@ public class MapScene {
 	 * Converter from the coordinates used in the MATSIM simulation map to the coordinates
 	 * used in the visualization, i.e. as used on the screen
 	 */
-	private final PointTransformer matsimToVisual;
+	private PointTransformer matsimToVisual;
 	
 	/**
 	 * The simulation time at which we start the visualization
 	 */
-	private final double minTime;
+	private double minTime;
 	
 	/**
 	 * The simulation time at which we end the visualization
 	 */
-	private final double maxTime;
+	private double maxTime;
 	
 	/**
 	 * @return The simulation time at which we start the visualization
@@ -558,7 +601,7 @@ public class MapScene {
 	/**
 	 * The actual intended duration of the visualization (i.e. in visualization time)
 	 */
-	private final int duration;
+	private int duration;
 	
 	/**
 	 * Converter from visualization to simulation time
@@ -607,7 +650,7 @@ public class MapScene {
 	/**
 	 * Holds the provider of people's shapes in order to be preserved while invoking updateNodes().
 	 */
-	private ShapeProvider peopleShapeProvider;	
+	private ShapeProvider peopleShapeProvider;
 	
 	/**
 	 * Updates the graphics of the nodes: instead of nodes being visualized as
@@ -635,9 +678,12 @@ public class MapScene {
 		addRecordingFrames();
 		setBackground();
 		mapContainer.getChildren().addAll(circles.keySet());
+		// TODO move this to external "plugin"		
+		mapContainer.getChildren().addAll(dirtinessShapes);
+		// move this to external "plugin"
 		mapContainer.getChildren().addAll(personShapes.values());
 		mapContainer.getChildren().addAll(ensembleShapes.values());
-		moveShapesToFront();
+//		moveShapesToFront();
 	}
 	
 	/**
@@ -671,9 +717,12 @@ public class MapScene {
 		addRecordingFrames();
 		setBackground();
 		mapContainer.getChildren().addAll(circles.keySet());
+		// TODO move this to external "plugin"
+		mapContainer.getChildren().addAll(dirtinessShapes);
+		// move this to external "plugin"
 		mapContainer.getChildren().addAll(personShapes.values());
 		mapContainer.getChildren().addAll(ensembleShapes.values());
-		moveShapesToFront();
+//		moveShapesToFront();
 	}
 	
 	/**
@@ -842,6 +891,10 @@ public class MapScene {
 	 */
 	private final Map<MembershipRelation,Node> ensembleShapes = new HashMap<>();
 	
+	// TODO move this to external "plugin"
+	private final Collection<Node> dirtinessShapes = new ArrayList<>();	
+	// move this to external "plugin"
+	
 	/**
 	 * Fills the timeline with keyframes that enable the right movements of 
 	 * people and ensembles visualizations. On top of that, it updates the 
@@ -858,6 +911,10 @@ public class MapScene {
 				Collection<KeyFrame> keyFrames2 = buildFramesForEnsembles();			
 				timeLine.getKeyFrames().addAll(keyFrames2);
 			}
+			// TODO move this to external "plugin"
+			Collection<KeyFrame> keyFrames3 = buildFramesForDirtiness();			
+			timeLine.getKeyFrames().addAll(keyFrames3);
+			// move this to external "plugin"
 		}
 	}	
 	
@@ -1134,17 +1191,48 @@ public class MapScene {
 		}
 		return res;
 	}
+	
+	// TODO move this to external "plugin" 
+	private Collection<KeyFrame> buildFramesForDirtiness() throws IOException {
+		Collection<KeyFrame> res = new ArrayList<>();
+		Collection<Node> localDirtinessShapes = new ArrayList<>();
+		for (DirtinessEvent de : dirtinessEvents) {
+			double timeVal = convertToVisualizationTime(de.getTime());
+			Duration time = new Duration(timeVal);
+			MyNode node = nodes.get(de.getNode()); 
+			System.out.println("additionalResourcesPath: " + additionalResourcesPath);
+			if (additionalResourcesPath == null) {
+				// additionalResourcesPath is not yet set, this is done by the acmescripts
+				return res;
+			}
+			ShapeProvider provider = new ImageProvider(false, additionalResourcesPath + "dirt.png", NODE_IMAGE_WIDTH, NODE_IMAGE_HEIGHT);
+			Node dirtinessShape = generateNodeWithBackgroundImage(provider, node);
+			KeyValue kv = new KeyValue(dirtinessShape.visibleProperty(), Boolean.TRUE);
+			KeyFrame kf = new KeyFrame(time, kv);
+			localDirtinessShapes.add(dirtinessShape);
+			res.add(kf);
+		}
+		dirtinessShapes.clear();
+		dirtinessShapes.addAll(localDirtinessShapes);
+		for (Node dirtinessShape : dirtinessShapes){
+			KeyValue kv = new KeyValue(dirtinessShape.visibleProperty(), Boolean.FALSE);
+			KeyFrame kf = new KeyFrame(Duration.ZERO, kv);
+			res.add(kf);
+		}
+		return res;
+	}
+	// move this to external "plugin" 
 
 	/**
 	 * The checkpoints (position of people) as encountered when parsing the input XML 
 	 * files. Contains positions of people on the map at specified times.
 	 */
-	private final CheckPointDatabase checkpointDb;
+	private CheckPointDatabase checkpointDb;
 	
 	/**
 	 * The ensemble events as parsed from the ensemble event log file.
 	 */
-	private final List<EnsembleEvent> ensembleEvents;
+	private List<EnsembleEvent> ensembleEvents;
 	
 	/**
 	 * Changes the image which represents each person in the visualization.
@@ -1164,7 +1252,7 @@ public class MapScene {
 			if (imageName == null){
 				provider = circleProvider;
 			} else {
-				provider = new ImageProvider(isResource, imageName, personImageWidth, personImageWidth);
+				provider = new ImageProvider(isResource, additionalResourcesPath + imageName, personImageWidth, personImageWidth);
 			}
 			update(provider, false, selectedPeople);
 			if (status == Status.RUNNING){
@@ -1196,7 +1284,7 @@ public class MapScene {
 			if (imageName == null){
 				provider = circleProvider;
 			} else {
-				provider = new ImageProvider(isResource, imageName, NODE_IMAGE_WIDTH, NODE_IMAGE_HEIGHT);
+				provider = new ImageProvider(isResource, additionalResourcesPath + imageName, NODE_IMAGE_WIDTH, NODE_IMAGE_HEIGHT);
 			}
 			updateNodes(null, null, provider,selectedNodes);
 			if (status == Status.RUNNING){
@@ -1213,81 +1301,56 @@ public class MapScene {
 	/**
 	 * Preferred map width at the beginning, before any zooming takes place
 	 */
-	private final double originalMapWidth;
+	private double originalMapWidth;
 	
 	/**
 	 * Preferred map height at the beginning, before any zooming takes place
 	 */
-	private final double originalMapHeight;
+	private double originalMapHeight;
 	
 	/**
 	 * The tool bar containing the various zooming, pausing, forwarding etc. options
 	 */
-	private final HBox controlsBar;
+	private HBox controlsBar;
 	
 	/**
 	 * Marks whether we are visualizing any MATSIM events, i.e. moving cars/persons.
 	 * If false, the visualization only shows the map.
 	 */
-	private final boolean matsimEventsPresent;
+	private boolean matsimEventsPresent;
 	
 	/**
 	 * Marks whether we are visualizing any ensemble membership events. If false, 
 	 * just the map is shown plus, if {@link MapScene#matsimEventsPresent} is 
 	 * true, the moving cars/persons.
 	 */
-	private final boolean ensembleEventsPresent;
+	private boolean ensembleEventsPresent;
 	
 	/**
 	 * Both width and height of the image that represents a person/car in the visualization
 	 */
-	private final int personImageWidth;
+	private int personImageWidth;
 	
 	/**
 	 * Generates the plain circles for cars/people representation
 	 */
-	private final ShapeProvider circleProvider;
+	private ShapeProvider circleProvider;
 	
 	/**
 	 * The background of the map
 	 */
-	private final Background background;
+	private Background background;
 	
 	/**
 	 * The color-picker used to select the background color of the visual output
 	 */
-	private final Node backgroundColorPicker;
-	
-	/**
-	 * @param nodes The network nodes. Keys = node IDs, values = {@link MyNode} node representations.
-	 * @param links The network links. Keys = link IDs, values = {@link MyLink} link representations.
-	 * @param mapWidth Preferred width of the map view, in pixels
-	 * @param mapHeight Preferred height of the map view, in pixels
-	 * @param timeLineStatus Called whenever the visualization is started, paused or stopped
-	 * @param timeLineRate Called whenever the visualization is sped up or down
-	 * @param minTime The simulation time at which we start the visualization
-	 * @param maxTime The simulation time at which we end the visualization
-	 * @param duration The actual intended duration of the visualization (i.e. in visualization time)
-	 * @param checkpointDb The checkpoints (positions of people) as encountered when 
-	 * parsing the input XML files. Contains positions of people on the map at specified times.
-	 * @param ensembleEvents The ensemble events as parsed from the ensemble event log file.
-	 * @param controlsBar The tool bar containing the various zooming, pausing, forwarding etc. options
-	 * @param matsimEventsPresent Marks whether we are visualizing any MATSIM events, i.e. moving cars/persons.
-	 * If false, the visualization only shows the map.
-	 * @param ensembleEventsPresent Marks whether we are visualizing any ensemble membership events. If false, 
-	 * just the map is shown plus, if {@link MapScene#matsimEventsPresent} is 
-	 * true, the moving cars/persons.
-	 * @param personImageWidth Both width and height of the image that represents a person/car in 
-	 * the visualization
-	 * @param circleProvider Generates the plain circles for cars/people representation
-	 * @param background The background of the map
-	 */
-	MapScene(Map<String,MyNode> nodes, Map<String,MyLink> links, double mapWidth, double mapHeight,  
-			ChangeListener<? super Status> timeLineStatus, ChangeListener<? super Number> timeLineRate,
-			double minTime, double maxTime, int duration, CheckPointDatabase checkpointDb, 
-			List<EnsembleEvent> ensembleEvents, HBox controlsBar, boolean matsimEventsPresent,
-			boolean ensembleEventsPresent, int personImageWidth, ShapeProvider circleProvider,
-			Background background, Node backgroundColorPicker) {		
+	private Node backgroundColorPicker;
+
+	private void init(Map<String, MyNode> nodes, Map<String, MyLink> links, double mapWidth, double mapHeight,
+			ChangeListener<? super Status> timeLineStatus, ChangeListener<? super Number> timeLineRate, double minTime,
+			double maxTime, int duration, CheckPointDatabase checkpointDb, List<EnsembleEvent> ensembleEvents,
+			HBox controlsBar, boolean matsimEventsPresent, boolean ensembleEventsPresent, int personImageWidth,
+			ShapeProvider circleProvider, Background background, Node backgroundColorPicker) {
 		mapPane.setContent(mapContainer);
 		this.checkpointDb = checkpointDb;
 		this.ensembleEvents = ensembleEvents;
@@ -1326,5 +1389,56 @@ public class MapScene {
 		this.background = background;
 		this.backgroundColorPicker = backgroundColorPicker;
 	}
+	
+	/**
+	 * @param nodes The network nodes. Keys = node IDs, values = {@link MyNode} node representations.
+	 * @param links The network links. Keys = link IDs, values = {@link MyLink} link representations.
+	 * @param mapWidth Preferred width of the map view, in pixels
+	 * @param mapHeight Preferred height of the map view, in pixels
+	 * @param timeLineStatus Called whenever the visualization is started, paused or stopped
+	 * @param timeLineRate Called whenever the visualization is sped up or down
+	 * @param minTime The simulation time at which we start the visualization
+	 * @param maxTime The simulation time at which we end the visualization
+	 * @param duration The actual intended duration of the visualization (i.e. in visualization time)
+	 * @param checkpointDb The checkpoints (positions of people) as encountered when 
+	 * parsing the input XML files. Contains positions of people on the map at specified times.
+	 * @param ensembleEvents The ensemble events as parsed from the ensemble event log file.
+	 * @param controlsBar The tool bar containing the various zooming, pausing, forwarding etc. options
+	 * @param matsimEventsPresent Marks whether we are visualizing any MATSIM events, i.e. moving cars/persons.
+	 * If false, the visualization only shows the map.
+	 * @param ensembleEventsPresent Marks whether we are visualizing any ensemble membership events. If false, 
+	 * just the map is shown plus, if {@link MapScene#matsimEventsPresent} is 
+	 * true, the moving cars/persons.
+	 * @param personImageWidth Both width and height of the image that represents a person/car in 
+	 * the visualization
+	 * @param circleProvider Generates the plain circles for cars/people representation
+	 * @param background The background of the map
+	 */
+	MapScene(Map<String,MyNode> nodes, Map<String,MyLink> links, double mapWidth, double mapHeight,  
+			ChangeListener<? super Status> timeLineStatus, ChangeListener<? super Number> timeLineRate,
+			double minTime, double maxTime, int duration, CheckPointDatabase checkpointDb, 
+			List<EnsembleEvent> ensembleEvents, HBox controlsBar, boolean matsimEventsPresent,
+			boolean ensembleEventsPresent, int personImageWidth, ShapeProvider circleProvider,
+			Background background, Node backgroundColorPicker) {		
+		init(nodes, links, mapWidth, mapHeight, timeLineStatus, timeLineRate, minTime, maxTime, duration, checkpointDb,
+				ensembleEvents, controlsBar, matsimEventsPresent, ensembleEventsPresent, personImageWidth,
+				circleProvider, background, backgroundColorPicker);
+	}
+
+	// TODO move this to external "plugin"
+	private List<DirtinessEvent> dirtinessEvents;
+	 
+	public MapScene(Map<String, MyNode> nodes, Map<String, MyLink> links, double mapWidth, double mapHeight,
+			ChangeListener<? super Status> timeLineStatus, ChangeListener<? super Number> timeLineRate, double minTime,
+			double maxTime, int duration, CheckPointDatabase checkpointDb, List<EnsembleEvent> ensembleEvents,
+			HBox controlsBar, boolean matsimEventsPresent, boolean ensembleEventsPresent, int personImageWidth,
+			ShapeProvider circleProvider, Background background, Node backgroundColorPicker,
+			List<DirtinessEvent> dirtinessEvents) {
+		init(nodes, links, mapWidth, mapHeight, timeLineStatus, timeLineRate, minTime, 
+				maxTime, duration, checkpointDb, ensembleEvents, controlsBar, matsimEventsPresent, 
+				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker);
+		this.dirtinessEvents = dirtinessEvents; 
+	}
+	// move this to external "plugin" 
 
 }

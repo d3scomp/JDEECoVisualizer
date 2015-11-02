@@ -1,4 +1,4 @@
-package cz.filipekt.jdcv.xml;
+package cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,19 +9,17 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import cz.cuni.mff.d3s.deeco.logging.Log;
-import cz.cuni.mff.d3s.deeco.runtimelog.EnsembleLogRecord;
 import cz.filipekt.jdcv.events.EnsembleEvent;
 import cz.filipekt.jdcv.exceptions.InvalidAttributeValueException;
 import cz.filipekt.jdcv.exceptions.TooManyEvents;
+import cz.filipekt.jdcv.xml.Utils;
 
 /**
- * SAX handler used to parse the XML file containing the ensemble events.
- * Collects the "event" elements.
+ * SAX handler used to parse the XML file containing the dirtiness events.
  * 
- * @author Tomas Filipek <tom.filipek@seznam.cz>
  * @author Ilias Gerostathopoulos <iliasg@d3s.mff.cuni.cz>
  */
-public class EnsembleHandler extends DefaultHandler {
+public class DirtinessEventHandler extends DefaultHandler {
 
 	/**
 	 * Container of events elements
@@ -42,7 +40,7 @@ public class EnsembleHandler extends DefaultHandler {
 	 * Expected value of the type attribute of the event element. Events of
 	 * different types should be ignored by this handler.
 	 */
-	private final String expectedTypeValue = EnsembleLogRecord.class.getCanonicalName();
+	private final String expectedTypeValue = DirtinessRecord.class.getCanonicalName();
 
 	/**
 	 * Name of the time attribute of the event element
@@ -52,86 +50,66 @@ public class EnsembleHandler extends DefaultHandler {
 	/**
 	 * Name of the coordinator sub-element of the event element
 	 */
-	private final String coordinatorName = "coordinatorID";
+	private final String intensityName = "intensity";
 
 	/**
 	 * Name of the member sub-element of the event element
 	 */
-	private final String memberName = "memberID";
-
-	/**
-	 * Name of the ensemble sub-element of the event element
-	 */
-	private final String ensembleName = "ensembleName";
-
-	/**
-	 * Name of the membership sub-element of the event element
-	 */
-	private final String membershipName = "membership";
+	private final String nodeName = "node";
 
 	/**
 	 * Flag to denote parsing a node element that is of the expected type
 	 */
-	private boolean visitingEnsembleNode = false;
+	private boolean visitingDirtinessNode = false;
 
 	/**
-	 * Flag to denote parsing a coordinator sub-element
+	 * Flag to denote parsing an intensity sub-element
 	 */
-	private boolean visitingCoordinatorNode = false;
+	private boolean visitingIntensityNode = false;
 
 	/**
-	 * Flag to denote parsing a member sub-element
+	 * Flag to denote parsing a node sub-element
 	 */
-	private boolean visitingMemberNode = false;
-
-	/**
-	 * Flag to denote parsing an ensemble sub-element
-	 */
-	private boolean visitingEnsembleNameNode = false;
-
-	/**
-	 * Flag to denote parsing a membership sub-element
-	 */
-	private boolean visitingMembershipNode = false;
+	private boolean visitingNodeNode = false;
 
 	/**
 	 * Storage for the parsed event elements
 	 */
-	private final List<EnsembleEvent> events = new ArrayList<>();
+	private final List<DirtinessEvent> events = new ArrayList<>();
 
 	/**
 	 * Stack to keep reference to the parent event element
 	 */
-	private Stack<EnsembleEvent> ensembleEventsStack = new Stack<>();
+	private Stack<DirtinessEvent> dirtinessEventsStack = new Stack<>();
 
 	/**
 	 * @return The parsed event elements
-	 * @see {@link EnsembleHandler#events}
+	 * @see {@link DirtinessEventHandler#events}
 	 */
-	public List<EnsembleEvent> getEvents() {
+	public List<DirtinessEvent> getEvents() {
 		return events;
 	}
 
 	/**
 	 * If true, only the events starting after time
-	 * {@link EnsembleHandler#startAtLimit} are taken into account
+	 * {@link DirtinessEventHandler#startAtLimit} are taken into account
 	 */
 	private final boolean startAtConstraint;
 
 	/**
-	 * If {@link EnsembleHandler#startAtConstraint} holds, only events starting
+	 * If {@link DirtinessEventHandler#startAtConstraint} holds, only events starting
 	 * from this time on are taken into account
 	 */
 	private final double startAtLimit;
 
 	/**
 	 * If true, only the events ending before time
-	 * {@link EnsembleHandler#endAtLimit} are taken into account
+	 * {@link DirtinessEventHandler#endAtLimit} are taken into account
 	 */
 	private final boolean endAtConstraint;
 
 	/**
-	 * If {@link EnsembleHandler#endAtConstraint} holds, only the events ending
+	 * If {@link DirtinessEventHandler#endAtConstraint} holds, only the events ending
 	 * before this time are taken into account
 	 */
 	private final double endAtLimit;
@@ -144,7 +122,7 @@ public class EnsembleHandler extends DefaultHandler {
 	 *            Only the events ending before this time are taken into
 	 *            account. If null, no such constraint is applied.
 	 */
-	public EnsembleHandler(Double startAt, Double endAt) {
+	public DirtinessEventHandler(Double startAt, Double endAt) {
 		if (startAt == null) {
 			startAtConstraint = false;
 			startAtLimit = -1;
@@ -172,7 +150,7 @@ public class EnsembleHandler extends DefaultHandler {
 	private final long countLimit = 600_000L;
 
 	/**
-	 * When an ensemble event element is encountered, it creates a corresponding
+	 * When a dirtiness event element is encountered, it creates a corresponding
 	 * object and pushes it to the stack. Also sets the flags according to the
 	 * element that is encountered.
 	 */
@@ -191,9 +169,9 @@ public class EnsembleHandler extends DefaultHandler {
 
 			String typeVal = attributes.getValue(typeName);
 			if (typeVal.equals(expectedTypeValue)) {
-				visitingEnsembleNode = true;
+				visitingDirtinessNode = true;
 			} else {
-				visitingEnsembleNode = false;
+				visitingDirtinessNode = false;
 				return;
 			}
 
@@ -213,32 +191,24 @@ public class EnsembleHandler extends DefaultHandler {
 				return;
 			}
 
-			EnsembleEvent eev = new EnsembleEvent(time);
-			ensembleEventsStack.push(eev);
+			DirtinessEvent eev = new DirtinessEvent(time);
+			dirtinessEventsStack.push(eev);
 		} else {
 
-			if (visitingEnsembleNode) {
+			if (visitingDirtinessNode) {
 
 				switch (qName) {
 
-				case coordinatorName:
-					visitingCoordinatorNode = true;
+				case intensityName:
+					visitingIntensityNode = true;
 					break;
 
-				case memberName:
-					visitingMemberNode = true;
-					break;
-
-				case membershipName:
-					visitingMembershipNode = true;
-					break;
-
-				case ensembleName:
-					visitingEnsembleNameNode = true;
+				case nodeName:
+					visitingNodeNode = true;
 					break;
 
 				default:
-					Log.i("Encountered unexpected sub-element of ensemble event with qName: " + qName);
+					Log.i("Encountered unexpected sub-element of dirtiness event with qName: " + qName);
 				}
 			}
 		}
@@ -247,14 +217,14 @@ public class EnsembleHandler extends DefaultHandler {
 	/**
 	 * When a closing event element (of the expected type) is encountered, the
 	 * corresponding event element is popped from the stack and stored in the
-	 * parsed form in the {@link EnsembleHandler#events} storage.
+	 * parsed form in the {@link DirtinessEventHandler#events} storage.
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 
-		if (visitingEnsembleNode && qName.equals(eventName)) {
-			events.add(ensembleEventsStack.pop());
-			visitingEnsembleNode = false;
+		if (visitingDirtinessNode && qName.equals(eventName)) {
+			events.add(dirtinessEventsStack.pop());
+			visitingDirtinessNode = false;
 		}
 	}
 
@@ -266,50 +236,32 @@ public class EnsembleHandler extends DefaultHandler {
 	@Override
 	public void characters(char ch[], int start, int length) throws SAXException {
 
-		if (visitingEnsembleNode) {
+		if (visitingDirtinessNode) {
 
-			EnsembleEvent parent = ensembleEventsStack.peek();
+			DirtinessEvent parent = dirtinessEventsStack.peek();
 			String val = new String(ch, start, length);
 
-			if (visitingCoordinatorNode) {
-				Utils.ensureNonNullAndNonEmptyAttr(eventName, coordinatorName, val);
-				parent.setCoordinator(val);
-				visitingCoordinatorNode = false;
-				return;
-			}
-
-			if (visitingMemberNode) {
-				Utils.ensureNonNullAndNonEmptyAttr(eventName, memberName, val);
-				parent.setMember(val);
-				visitingMemberNode = false;
-				return;
-			}
-
-			if (visitingEnsembleNameNode) {
-				Utils.ensureNonNullAndNonEmptyAttr(eventName, ensembleName, val);
-				parent.setEnsemble(val);
-				visitingEnsembleNameNode = false;
-				return;
-			}
-
-			if (visitingMembershipNode) {
-				Utils.ensureNonNullAndNonEmptyAttr(eventName, membershipName, val);
-				boolean membership;
-				switch (val) {
-				case "true":
-					membership = true;
-					break;
-				case "false":
-					membership = false;
-					break;
-				default:
+			if (visitingIntensityNode) {
+				Utils.ensureNonNullAndNonEmptyAttr(eventName, intensityName, val);
+				double intensity;
+				try {
+					intensity = Double.parseDouble(val);
+				} catch (NumberFormatException ex) {
 					throw new SAXException(new InvalidAttributeValueException(
-							"Membership attribute in the ensemble event element has only two allowed values: true, false."));
+							"Time attribute of the ensemble event must be in the \"double precision\" format."));
 				}
-				parent.setMembership(membership);
-				visitingMembershipNode = false;
+				parent.setIntensity(intensity);
+				visitingIntensityNode = false;
 				return;
 			}
+
+			if (visitingNodeNode) {
+				Utils.ensureNonNullAndNonEmptyAttr(eventName, nodeName, val);
+				parent.setNode(val);
+				visitingNodeNode = false;
+				return;
+			}
+
 		}
 	}
 

@@ -1,0 +1,14 @@
+<events>
+<event time="20000" id="TB3" eventType="cz.cuni.mff.d3s.jdeeco.ua.visualization.DirtinessRecord" >
+	<intensity>0.6</intensity>
+	<node>341</node>
+</event>
+<event time="20000" id="TB1" eventType="cz.cuni.mff.d3s.jdeeco.ua.visualization.DirtinessRecord" >
+	<intensity>0.2</intensity>
+	<node>229</node>
+</event>
+<event time="30000" id="TB1" eventType="cz.cuni.mff.d3s.jdeeco.ua.visualization.DirtinessRecord" >
+	<intensity>0.3</intensity>
+	<node>372</node>
+</event>
+</events>

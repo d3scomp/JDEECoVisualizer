@@ -19,7 +19,8 @@ public enum EventType {
 	WAIT_2_LINK,
 	STUCK_AND_ABORT,
 	TRAVELLED,
-	ENSEMBLE;
+	ENSEMBLE,
+	DIRTINESS;
 	
 	/**
 	 * The actual value of the type attribute that is represented by the 

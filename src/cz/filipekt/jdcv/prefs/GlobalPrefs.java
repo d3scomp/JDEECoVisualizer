@@ -10,6 +10,7 @@ import cz.filipekt.jdcv.MapScene;
  * application or visualization.
  * 
  * @author Tomas Filipek <tom.filipek@seznam.cz>
+ * @author Ilias Gerostathopoulos <iliasg@d3s.mff.cuni.cz>
  */
 public class GlobalPrefs {
 	
@@ -38,54 +39,70 @@ public class GlobalPrefs {
 		this.outputWriter = writer;
 	}
 
+	/**
+	 * Setter for the additionalResourcesPath field. It also passes the path of
+	 * additional resources (e.g. png files) to the scene. To be used by the
+	 * scripting interface BEFORE issuing setPersonImage() or setNodeImage().
+	 * 
+	 * @param additionalResourcesPath
+	 *            the path to additional resources
+	 */
 	public void setAdditionalResourcesPath(String additionalResourcesPath) {
 		this.additionalResourcesPath = additionalResourcesPath;
+		scene.setAdditionalResourcesPath(additionalResourcesPath);
 	}
 	
 	/**
-	 * Given a path to an image and an array of person IDs, each of the persons will be 
-	 * represented by the image in the visualization.
-	 * @param path The image to use for visualizing people
-	 * @param selectedPeople People whose visualizations will be updated
+	 * Given a path to an image and an array of person IDs, each of the persons
+	 * will be represented by the image in the visualization.
+	 * 
+	 * @param path
+	 *            The image to use for visualizing people
+	 * @param selectedPeople
+	 *            People whose visualizations will be updated
 	 */
 	public void setPersonImage(String path, String... selectedPeople) {
-		if (scene == null){
-			printNoOp();
+		if (scene == null) {
+			write("No simulation scene has been specified.");
 		} else {
-			try {
-				scene.changePeopleImage(additionalResourcesPath + path, false, selectedPeople);
-				write("Image for persons has been successfully changed.");
-			} catch (Exception ex){
-				write("Image for persons couldn't be changed.");
+			if (additionalResourcesPath == null) {
+				write("No additional resources path has been specified. Use setAdditionalResourcesPath(<path>)");
+			} else {
+				try {
+					scene.changePeopleImage(path, false, selectedPeople);
+					write("Image for persons has been successfully changed.");
+				} catch (Exception ex) {
+					write("Image for persons couldn't be changed.");
+				}
 			}
 		}
 	}
 	
 	/**
-	 * Given a path to an image and an array of node IDs, each of the nodes will be 
-	 * represented by the image in the visualization.
-	 * @param path The image to use for visualizing nodes
-	 * @param selectedNodes Nodes whose visualizations will be updated
+	 * Given a path to an image and an array of node IDs, each of the nodes will
+	 * be represented by the image in the visualization.
+	 * 
+	 * @param path
+	 *            The image to use for visualizing nodes
+	 * @param selectedNodes
+	 *            Nodes whose visualizations will be updated
 	 */
 	public void setNodeImage(String path, String... selectedNodes) {
-		if (scene == null){
-			printNoOp();
-		} else { 
-			try {
-				scene.changeNodeImage(additionalResourcesPath + path, false, selectedNodes);
-				write("Image for nodes has been successfully changed.");
-			} catch (Exception ex){
-				write("Image for nodes couldn't be changed.");
-				write("Exception: " + ex.toString());
+		if (scene == null) {
+			write("No simulation scene has been specified.");
+		} else {
+			if (additionalResourcesPath == null) {
+				write("No additional resources path has been specified. Use setAdditionalResourcesPath(<path>) to set a path.");
+			} else {
+				try {
+					scene.changeNodeImage(path, false, selectedNodes);
+					write("Image for nodes has been successfully changed.");
+				} catch (Exception ex) {
+					write("Image for nodes couldn't be changed.");
+					write("Exception: " + ex.toString());
+				}
 			}
 		}
-	}
-	
-	/**
-	 * Prints a "no operation" log to the output
-	 */
-	private void printNoOp() {
-		write("No simulation scene has been specified.");
 	}
 	
 	/**

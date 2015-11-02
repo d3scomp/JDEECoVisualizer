@@ -18,7 +18,7 @@ public class Utils {
 	 * @param attrValue Value of the attribute
 	 * @throws SAXException When the attribute value is either null or empty.
 	 */
-	static void ensureNonNullAndNonEmptyAttr(String element, String attrName, String attrValue) throws SAXException{
+	public static void ensureNonNullAndNonEmptyAttr(String element, String attrName, String attrValue) throws SAXException{
 		if ((attrValue == null) || attrValue.isEmpty()){
 			throw new SAXException(new MandatoryAttributeNotFoundException("The " + attrName + " attribute of the " + 
 					element + " element must always be present."));

@@ -7,6 +7,7 @@ import javafx.animation.Animation.Status;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
+import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEvent;
 import cz.filipekt.jdcv.SceneImportHandler.ShapeProvider;
 import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
 import cz.filipekt.jdcv.corridors.Background;
@@ -270,6 +271,15 @@ class MapSceneBuilder {
 	public MapScene build(){
 		return new MapScene(nodes, links, mapWidth, mapHeight, timeLineStatus, timeLineRate, minTime, 
 				maxTime, duration, checkpointDb, ensembleEvents, controlsBar, matsimEventsPresent, 
-				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker);
+				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker, dirtinessEvents);
 	}
+
+	// TODO move this to external "plugin" 
+	private List<DirtinessEvent> dirtinessEvents;
+
+	public void setDirtinessEvents(List<DirtinessEvent> dirtinessEvents) {
+		this.dirtinessEvents = dirtinessEvents;
+	}
+	// move this to external "plugin" 
+
 }

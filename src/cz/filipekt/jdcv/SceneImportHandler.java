@@ -15,8 +15,9 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
+import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEvent;
+import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEventHandler;
 import cz.filipekt.jdcv.checkpoints.CheckPoint;
 import cz.filipekt.jdcv.checkpoints.CheckPoint.Type;
 import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
@@ -34,9 +35,9 @@ import cz.filipekt.jdcv.util.Resources;
 import cz.filipekt.jdcv.xml.BackgroundHandler;
 import cz.filipekt.jdcv.xml.CorridorHandler;
 import cz.filipekt.jdcv.xml.EnsembleHandler;
+import cz.filipekt.jdcv.xml.JDEECoEventHandler;
 import cz.filipekt.jdcv.xml.LinkHandler;
 import cz.filipekt.jdcv.xml.MatsimEventHandler;
-import cz.filipekt.jdcv.xml.JDEECoEventHandler;
 import cz.filipekt.jdcv.xml.NodeHandler;
 import cz.filipekt.jdcv.xml.XMLextractor;
 import javafx.animation.Animation.Status;
@@ -444,6 +445,10 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 */
 	private List<EnsembleEvent> ensembleEvents;
 	
+	// TODO move this to external "plugin" 
+	private List<DirtinessEvent> dirtinessEvents;
+	// move this to external "plugin" 
+
 	/** 
 	 * If true, then links are visualized upon creation of the new scene 
 	 */
@@ -506,6 +511,9 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		sceneBuilder.setCircleProvider(circleProvider);
 		sceneBuilder.setBackground(backgroundHandler.getResult());
 		sceneBuilder.setBackgroundColorPicker(visualizer.getBackgroundColorPicker());
+		// TODO move this to external "plugin" 
+		sceneBuilder.setDirtinessEvents(dirtinessEvents);
+		// move this to external "plugin" 
 		final MapScene scene = sceneBuilder.build();
 		scene.update(circleProvider, false, null);
 		Platform.runLater(new Runnable() {
@@ -572,6 +580,13 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 				JDEECoEventHandler jDEECoEventHandler = new JDEECoEventHandler(links, onlyAgents, startAt, endAt);
 				XMLextractor.run(eventsStream, eventsFileEncoding, jDEECoEventHandler);
 				events = jDEECoEventHandler.getEvents();
+				
+				// TODO move this to external "plugin" 
+				Path dirtinessFile = Paths.get(eventField.getText());
+				DirtinessEventHandler dirtinessEventHandler = new DirtinessEventHandler(startAt, endAt);
+				XMLextractor.run(dirtinessFile, eventsFileEncoding, dirtinessEventHandler);
+				dirtinessEvents = dirtinessEventHandler.getEvents();
+				// move this to external "plugin"
 			}
 			
 			cdb = buildCheckPointDatabase(events);
