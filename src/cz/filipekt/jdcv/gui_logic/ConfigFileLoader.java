@@ -1,6 +1,13 @@
 package cz.filipekt.jdcv.gui_logic;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,16 +15,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
 import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.VisualizerPlugin;
 import cz.filipekt.jdcv.Visualizer;
 import cz.filipekt.jdcv.util.CharsetNames;
 import cz.filipekt.jdcv.util.Dialog;
 import cz.filipekt.jdcv.util.Dialog.Type;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 
 /**
  * Loads the configuration of a new scene from a configuration file.
@@ -183,6 +190,12 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	 * in the config file
 	 */
 	private final String pluginsPreamble = "plugins";
+
+	/**
+	 * First block of the line which specifies the directories of the plugins,  
+	 * in the config file
+	 */
+	private final String pluginsDirsPreamble = "pluginsDirs";
 	
 	/**
 	 * Fired when user clicks the "load" button next to the config file text field.
@@ -288,6 +301,9 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 							case pluginsPreamble:
 								processPluginLine(blocks, lineNo);
 								break;
+							case pluginsDirsPreamble:
+								processPluginDirsLine(blocks, lineNo);
+								break;
 							default:
 								break;
 						}
@@ -307,6 +323,28 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 		}
 	}
 	
+	private void processPluginDirsLine(String[] blocks, int lineNo) throws ConfigFileFormatException {
+		if ((blocks != null) && (blocks.length >= 1)){
+			if (blocks.length > 2){
+				throw new ConfigFileFormatException("[Line " + lineNo + 
+						"]: contains too many blocks delimited by \"" + delimiter + "\"");
+			}
+			try {
+				URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+				Class<URLClassLoader> urlClass = URLClassLoader.class;
+				Method method = urlClass.getDeclaredMethod("addURL", new Class[] { URL.class });
+				method.setAccessible(true);
+				method.invoke(urlClassLoader, new Object[] { new File(blocks[1]).toURI().toURL() });
+				
+			} catch (IllegalAccessException | MalformedURLException | SecurityException | IllegalArgumentException | NoSuchMethodException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		} else {
+			throw new ConfigFileFormatException("[Line " + (lineNo+1) + 
+					"]: contains too few blocks delimited by \"" + delimiter + "\"");
+		}
+	}
+
 	/*
 	 * Retrieves the plugin class by name, creates an instance and adds it to
 	 * the visualizer's plugins list 
@@ -320,7 +358,8 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 			try {
 				Class pluginClass = Class.forName(blocks[1]);
 				Visualizer.getInstance().addVisualizerPlugin((VisualizerPlugin) pluginClass.newInstance());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | IllegalArgumentException e) {
 				e.printStackTrace();
 			}
 		} else {
