@@ -17,7 +17,7 @@ public class ActStartOrEnd implements MatsimEvent {
 	/**
 	 * Specifies whether the event type is "actstart" or "actend".
 	 */
-	private final EventType type;
+	private final String type;
 	
 	/**
 	 * ID of the person that started (or ended) with the activity.
@@ -77,7 +77,7 @@ public class ActStartOrEnd implements MatsimEvent {
 	 * @see {@link ActStartOrEnd#type}
 	 */
 	@Override
-	public EventType getType() {
+	public String getType() {
 		return type;
 	}
 

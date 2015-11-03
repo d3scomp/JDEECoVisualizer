@@ -12,8 +12,8 @@ import cz.filipekt.jdcv.events.ActStartOrEnd;
 import cz.filipekt.jdcv.events.ArrivalOrDeparture;
 import cz.filipekt.jdcv.events.EnteredOrLeftLink;
 import cz.filipekt.jdcv.events.EntersOrLeavesVehicle;
-import cz.filipekt.jdcv.events.MatsimEvent;
 import cz.filipekt.jdcv.events.EventType;
+import cz.filipekt.jdcv.events.MatsimEvent;
 import cz.filipekt.jdcv.exceptions.InvalidAttributeValueException;
 import cz.filipekt.jdcv.exceptions.LinkNotFoundException;
 import cz.filipekt.jdcv.exceptions.TooManyEvents;
@@ -197,35 +197,34 @@ public class MatsimEventHandler extends DefaultHandler {
 			if (endAtConstraint && (endAtLimit < time)){
 				return;
 			}
-			String typeVal = attributes.getValue(typeName);
-			EventType type = EventType.from(typeVal);
+			String type = attributes.getValue(typeName);
 			if (type != null){
 				String personVal = attributes.getValue(personName);
 				Utils.ensureNonNullAndNonEmptyAttr(eventName, personName, personVal);
 				if (!onlyComponents || isInjectedComponent(personVal)){
 					switch(type){
-						case PERSON_ENTERS_VEHICLE:
+						case EventType.PERSON_ENTERS_VEHICLE:
 							processEnteredOrLVehicle(attributes, time, personVal, true);						
 							break;
-						case PERSON_LEAVES_VEHICLE:
+						case EventType.PERSON_LEAVES_VEHICLE:
 							processEnteredOrLVehicle(attributes, time, personVal, false);
 							break;
-						case ENTERED_LINK:
+						case EventType.ENTERED_LINK:
 							processEorLLink(attributes, time, personVal, true);
 							break;
-						case LEFT_LINK:
+						case EventType.LEFT_LINK:
 							processEorLLink(attributes, time, personVal, false);
 							break;
-						case ARRIVAL:
+						case EventType.ARRIVAL:
 							processArrivalDeparture(attributes, time, personVal, false);
 							break;
-						case DEPARTURE:
+						case EventType.DEPARTURE:
 							processArrivalDeparture(attributes, time, personVal, true);
 							break;
-						case ACT_START:
+						case EventType.ACT_START:
 							processActStartEnd(attributes, time, personVal, true);
 							break;
-						case ACT_END:
+						case EventType.ACT_END:
 							processActStartEnd(attributes, time, personVal, false);
 							break;
 						default:

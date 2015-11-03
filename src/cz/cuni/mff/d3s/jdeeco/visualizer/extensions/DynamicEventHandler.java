@@ -3,7 +3,6 @@ package cz.cuni.mff.d3s.jdeeco.visualizer.extensions;
 import java.util.List;
 
 import cz.filipekt.jdcv.events.Event;
-import cz.filipekt.jdcv.events.EventType;
 
 /**
  * 
@@ -64,7 +63,7 @@ public abstract class DynamicEventHandler implements OtherEventHandler {
 		return null;
 	};
 	
-	public EventType getEventType() {
+	public String getEventType() {
 		return null;
 	};
 }

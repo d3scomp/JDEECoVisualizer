@@ -67,7 +67,7 @@ public class EnsembleEvent implements Event{
 	 * @see {@link EventType}
 	 */
 	@Override
-	public EventType getType() {
+	public String getType() {
 		return EventType.ENSEMBLE;
 	}
 

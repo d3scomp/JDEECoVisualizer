@@ -1381,7 +1381,7 @@ public class MapScene {
 	/**
 	 * Events that can be used to extend what can be visualized in the scene
 	 */
-	private Map<EventType, List<Event>> otherEvents;
+	private Map<String, List<Event>> otherEvents;
 
 	/**
 	 * Holds the extensions that allow the map scene to visualize the {@link otherEvents}
@@ -1393,7 +1393,7 @@ public class MapScene {
 			double maxTime, int duration, CheckPointDatabase checkpointDb, List<EnsembleEvent> ensembleEvents,
 			HBox controlsBar, boolean matsimEventsPresent, boolean ensembleEventsPresent, int personImageWidth,
 			ShapeProvider circleProvider, Background background, Node backgroundColorPicker,
-			Map<EventType, List<Event>> otherEvents, List<MapSceneExtensionPoint> mapSceneExtensions) {
+			Map<String, List<Event>> otherEvents, List<MapSceneExtensionPoint> mapSceneExtensions) {
 		init(nodes, links, mapWidth, mapHeight, timeLineStatus, timeLineRate, minTime, 
 				maxTime, duration, checkpointDb, ensembleEvents, controlsBar, matsimEventsPresent, 
 				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker);

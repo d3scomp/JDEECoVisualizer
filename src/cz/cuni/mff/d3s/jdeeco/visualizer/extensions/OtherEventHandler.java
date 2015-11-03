@@ -5,7 +5,6 @@ import java.util.List;
 import org.xml.sax.ContentHandler;
 
 import cz.filipekt.jdcv.events.Event;
-import cz.filipekt.jdcv.events.EventType;
 
 /**
  * Models an event handler for events other than the core events (matsim events
@@ -18,5 +17,5 @@ public interface OtherEventHandler extends ContentHandler {
 	
 	public List<Event> getEvents();
 	
-	public EventType getEventType();
+	public String getEventType();
 }

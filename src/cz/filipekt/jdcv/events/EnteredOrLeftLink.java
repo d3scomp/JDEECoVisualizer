@@ -32,7 +32,7 @@ public class EnteredOrLeftLink implements MatsimEvent {
 	/**
 	 * Specifies whether the event is of type "entered link" or "left link".
 	 */
-	private final EventType type;
+	private final String type;
 
 	/**
 	 * @return ID of the person that entered (or left) the link.
@@ -65,7 +65,7 @@ public class EnteredOrLeftLink implements MatsimEvent {
 	 * @see {@link EnteredOrLeftLink#type}
 	 */
 	@Override
-	public EventType getType() {
+	public String getType() {
 		return type;
 	}
 

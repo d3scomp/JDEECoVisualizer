@@ -15,14 +15,14 @@ public class EntersOrLeavesVehicle implements MatsimEvent {
 	/**
 	 * Specifies whether the event type is "PersonEntersVehicle" or "PersonLeavesVehicle"
 	 */
-	private final EventType type;
+	private final String type;
 
 	/**
 	 * {@inheritDoc}
 	 * @see {@link EntersOrLeavesVehicle#type}
 	 */
 	@Override
-	public EventType getType() {
+	public String getType() {
 		return type;
 	}
 

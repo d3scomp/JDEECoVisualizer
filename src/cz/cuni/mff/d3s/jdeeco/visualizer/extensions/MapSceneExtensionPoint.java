@@ -19,6 +19,6 @@ import javafx.animation.KeyFrame;
  */
 public interface MapSceneExtensionPoint {
 
-	Collection<KeyFrame> buildFrames(Map<EventType, List<Event>> otherEvents, MapScene mapScene) throws IOException;
+	Collection<KeyFrame> buildFrames(Map<String, List<Event>> otherEvents, MapScene mapScene) throws IOException;
 	
 }

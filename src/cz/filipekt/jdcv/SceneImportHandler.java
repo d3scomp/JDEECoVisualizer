@@ -459,7 +459,7 @@ public class SceneImportHandler implements EventHandler<ActionEvent>{
 	 * visualizer core functionality (matsim events, ensemble events), that can
 	 * be used to extend the visualizer
 	 */
-	private final Map<EventType, List<Event>> otherEvents = new HashMap<>();
+	private final Map<String, List<Event>> otherEvents = new HashMap<>();
 	/**
 	 * Handlers for application-specific events. These events are other than the
 	 * ones expected by the visualizer core functionality (matsim events,

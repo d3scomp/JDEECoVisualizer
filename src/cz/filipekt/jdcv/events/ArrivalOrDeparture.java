@@ -33,7 +33,7 @@ public class ArrivalOrDeparture implements MatsimEvent {
 	/**
 	 * Specifies whether this event is an arrival or a departure.
 	 */
-	private final EventType type;
+	private final String type;
 	
 	/**
 	 * Time at which the event occurred.
@@ -60,7 +60,7 @@ public class ArrivalOrDeparture implements MatsimEvent {
 	 * @see {@link ArrivalOrDeparture#type}
 	 */
 	@Override
-	public EventType getType() {
+	public String getType() {
 		return type;
 	}
 

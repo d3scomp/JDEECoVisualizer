@@ -9,9 +9,8 @@ public interface Event {
 	
 	/**
 	 * @return The type of the event.
-	 * @see {@link EventType}
 	 */
-	EventType getType();
+	String getType();
 	
 	/**
 	 * @return The time at which the event occurred.

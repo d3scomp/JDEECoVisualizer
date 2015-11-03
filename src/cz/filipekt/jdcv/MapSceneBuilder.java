@@ -270,9 +270,9 @@ class MapSceneBuilder {
 	/**
 	 * Events that can be used to extend what can be visualized in the scene
 	 */
-	private Map<EventType, List<Event>> otherEvents;
+	private Map<String, List<Event>> otherEvents;
 
-	public void setOtherEvents(Map<EventType, List<Event>> otherEvents) {
+	public void setOtherEvents(Map<String, List<Event>> otherEvents) {
 		this.otherEvents = otherEvents;
 	}
 	
