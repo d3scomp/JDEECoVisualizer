@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,14 +17,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEvent;
-import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEventHandler;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.MapSceneExtensionPoint;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.OtherEventHandler;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.VisualizerPlugin;
 import cz.filipekt.jdcv.checkpoints.CheckPoint;
 import cz.filipekt.jdcv.checkpoints.CheckPoint.Type;
 import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
 import cz.filipekt.jdcv.events.EnsembleEvent;
 import cz.filipekt.jdcv.events.EnteredOrLeftLink;
 import cz.filipekt.jdcv.events.EntersOrLeavesVehicle;
+import cz.filipekt.jdcv.events.Event;
 import cz.filipekt.jdcv.events.EventType;
 import cz.filipekt.jdcv.events.MatsimEvent;
 import cz.filipekt.jdcv.network.MyLink;
@@ -66,7 +69,7 @@ import javafx.scene.shape.Circle;
  * 
  * @author Tomas Filipek <tom.filipek@seznam.cz>
  */
-class SceneImportHandler implements EventHandler<ActionEvent>{
+public class SceneImportHandler implements EventHandler<ActionEvent>{
 	
 	/**
 	 * The three fields containing the paths to the source XML files.
@@ -373,6 +376,12 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 				problems.add("The \"Target duration\" field must contain an integer number.");
 			}
 		}
+		// go through all the plugins and collect the corresponding event handlers and map scene extensions 
+		for (VisualizerPlugin plugin : visualizer.getVisualizerPlugins()) {
+			otherEventHandlers.add(plugin.getDynamicEventHandler(startAt, endAt));
+			mapSceneExtensions.add(plugin.getMapSceneExtensionPoint());
+		}
+		
 		reportProblemsForScene(problems, onlyAgents, startAt, endAt, duration);
 	}
 	
@@ -445,10 +454,24 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 */
 	private List<EnsembleEvent> ensembleEvents;
 	
-	// TODO move this to external "plugin" 
-	private List<DirtinessEvent> dirtinessEvents;
-	// move this to external "plugin" 
-
+	/**
+	 * Application-specific events. These are other than the ones expected by the
+	 * visualizer core functionality (matsim events, ensemble events), that can
+	 * be used to extend the visualizer
+	 */
+	private final Map<EventType, List<Event>> otherEvents = new HashMap<>();
+	/**
+	 * Handlers for application-specific events. These events are other than the
+	 * ones expected by the visualizer core functionality (matsim events,
+	 * ensemble events). One such handler can be, e.g., "DirtinessEventHandler"
+	 */
+	private List<OtherEventHandler> otherEventHandlers = new ArrayList<>();
+	
+	/**
+	 * Holds the extensions that allow the map scene to visualize the {@link otherEvents}
+	 */
+	private List<MapSceneExtensionPoint> mapSceneExtensions = new ArrayList<>();
+	
 	/** 
 	 * If true, then links are visualized upon creation of the new scene 
 	 */
@@ -511,9 +534,8 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		sceneBuilder.setCircleProvider(circleProvider);
 		sceneBuilder.setBackground(backgroundHandler.getResult());
 		sceneBuilder.setBackgroundColorPicker(visualizer.getBackgroundColorPicker());
-		// TODO move this to external "plugin" 
-		sceneBuilder.setDirtinessEvents(dirtinessEvents);
-		// move this to external "plugin" 
+		sceneBuilder.setOtherEvents(otherEvents);
+		sceneBuilder.setMapSceneExtensions(mapSceneExtensions);
 		final MapScene scene = sceneBuilder.build();
 		scene.update(circleProvider, false, null);
 		Platform.runLater(new Runnable() {
@@ -581,12 +603,13 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 				XMLextractor.run(eventsStream, eventsFileEncoding, jDEECoEventHandler);
 				events = jDEECoEventHandler.getEvents();
 				
-				// TODO move this to external "plugin" 
-				Path dirtinessFile = Paths.get(eventField.getText());
-				DirtinessEventHandler dirtinessEventHandler = new DirtinessEventHandler(startAt, endAt);
-				XMLextractor.run(dirtinessFile, eventsFileEncoding, dirtinessEventHandler);
-				dirtinessEvents = dirtinessEventHandler.getEvents();
-				// move this to external "plugin"
+				// go through all the additional handlers and generate the corresponding events 
+				for (OtherEventHandler handler : otherEventHandlers) {
+					Path otherEventsFile = Paths.get(eventField.getText());
+					XMLextractor.run(otherEventsFile, eventsFileEncoding, handler);
+					otherEvents.put(handler.getEventType(), handler.getEvents());
+				}
+
 			}
 			
 			cdb = buildCheckPointDatabase(events);
@@ -681,7 +704,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 	 * Producer of {@link ImageView} instances,
 	 * later used for visualizing persons or cars 
 	 */
-	static class ImageProvider implements ShapeProvider {
+	public static class ImageProvider implements ShapeProvider {
 		
 		/**
 		 * Name of the resource file containing the image
@@ -704,6 +727,11 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		 */
 		private final boolean isResource;
 
+		/** 
+		 * The opacity of the generated image
+		 */
+		private double opacity;
+
 		/**
 		 * @param isResource If true, the image specified by the second parameter, is looked 
 		 * for in the application resources. 
@@ -712,11 +740,12 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 		 * @param imageWidth Width (a also height) of the provided image
 		 * @throws FileNotFoundException When the image could not be found
 		 */
-		public ImageProvider(boolean isResource, String image, int imageWidth, int imageHeight) throws FileNotFoundException {
+		public ImageProvider(boolean isResource, String image, int imageWidth, int imageHeight, double opacity) throws FileNotFoundException {
 			this.image = image;
 			this.imageWidth = imageWidth;
 			this.imageHeight = imageHeight;
 			this.isResource = isResource;
+			this.opacity = opacity;
 			try {
 				getNewShape();
 			} catch (IOException ex){
@@ -738,6 +767,7 @@ class SceneImportHandler implements EventHandler<ActionEvent>{
 				Image image = new Image(stream, imageWidth, imageHeight, true, false);
 				res = new ImageView(image);
 			}
+			res.setOpacity(opacity);
 			res.setLayoutX(-(imageWidth/2));
 			res.setLayoutY(-(imageHeight/2));
 			res.setOnMouseEntered(new EventHandler<MouseEvent>() {

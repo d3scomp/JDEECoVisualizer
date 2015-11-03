@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.CountDownLatch;
 
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.VisualizerPlugin;
 import cz.filipekt.jdcv.gui_logic.BackgroundColorHandler;
 import cz.filipekt.jdcv.gui_logic.CloseSceneHandler;
 import cz.filipekt.jdcv.gui_logic.ConfigFileLoader;
@@ -1269,5 +1270,19 @@ public class Visualizer extends Application {
 	 */
 	public void toggleLinksVisibility() {
 		scene.setLinksVisible(showLinksBox.isSelected());
+	}
+
+	/**
+	 * Holds the plugins used to extend the functionality of the visualizer
+	 * towards application-specific needs.
+	 */
+	private List<VisualizerPlugin> visualizerPlugins = new ArrayList<>();
+	 
+	public void addVisualizerPlugin(VisualizerPlugin visualizerPlugin) {
+		visualizerPlugins.add(visualizerPlugin); 
+	}
+	
+	public List<VisualizerPlugin> getVisualizerPlugins() {
+		return visualizerPlugins; 
 	}
 }

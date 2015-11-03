@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Stack;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import cz.cuni.mff.d3s.deeco.logging.Log;
-import cz.filipekt.jdcv.events.EnsembleEvent;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.DynamicEventHandler;
+import cz.filipekt.jdcv.events.Event;
+import cz.filipekt.jdcv.events.EventType;
 import cz.filipekt.jdcv.exceptions.InvalidAttributeValueException;
 import cz.filipekt.jdcv.exceptions.TooManyEvents;
 import cz.filipekt.jdcv.xml.Utils;
@@ -19,7 +21,11 @@ import cz.filipekt.jdcv.xml.Utils;
  * 
  * @author Ilias Gerostathopoulos <iliasg@d3s.mff.cuni.cz>
  */
-public class DirtinessEventHandler extends DefaultHandler {
+public class DirtinessEventHandler extends DynamicEventHandler {
+
+	public DirtinessEventHandler(Double startAt, Double endAt) {
+		super(startAt, endAt);
+	}
 
 	/**
 	 * Container of events elements
@@ -75,7 +81,7 @@ public class DirtinessEventHandler extends DefaultHandler {
 	/**
 	 * Storage for the parsed event elements
 	 */
-	private final List<DirtinessEvent> events = new ArrayList<>();
+	private final List<Event> events = new ArrayList<>();
 
 	/**
 	 * Stack to keep reference to the parent event element
@@ -86,57 +92,12 @@ public class DirtinessEventHandler extends DefaultHandler {
 	 * @return The parsed event elements
 	 * @see {@link DirtinessEventHandler#events}
 	 */
-	public List<DirtinessEvent> getEvents() {
+	public List<Event> getEvents() {
 		return events;
 	}
-
-	/**
-	 * If true, only the events starting after time
-	 * {@link DirtinessEventHandler#startAtLimit} are taken into account
-	 */
-	private final boolean startAtConstraint;
-
-	/**
-	 * If {@link DirtinessEventHandler#startAtConstraint} holds, only events starting
-	 * from this time on are taken into account
-	 */
-	private final double startAtLimit;
-
-	/**
-	 * If true, only the events ending before time
-	 * {@link DirtinessEventHandler#endAtLimit} are taken into account
-	 */
-	private final boolean endAtConstraint;
-
-	/**
-	 * If {@link DirtinessEventHandler#endAtConstraint} holds, only the events ending
-	 * before this time are taken into account
-	 */
-	private final double endAtLimit;
-
-	/**
-	 * @param startAt
-	 *            Only events starting from this time on are taken into account.
-	 *            If null, no such constraint is applied.
-	 * @param endAt
-	 *            Only the events ending before this time are taken into
-	 *            account. If null, no such constraint is applied.
-	 */
-	public DirtinessEventHandler(Double startAt, Double endAt) {
-		if (startAt == null) {
-			startAtConstraint = false;
-			startAtLimit = -1;
-		} else {
-			startAtConstraint = true;
-			startAtLimit = startAt;
-		}
-		if (endAt == null) {
-			endAtConstraint = false;
-			endAtLimit = -1;
-		} else {
-			endAtConstraint = true;
-			endAtLimit = endAt;
-		}
+	
+	public EventType getEventType() {
+		return EventType.DIRTINESS;
 	}
 
 	/**
@@ -263,6 +224,38 @@ public class DirtinessEventHandler extends DefaultHandler {
 			}
 
 		}
+	}
+
+	@Override
+	public void setDocumentLocator(Locator locator) {
+	}
+
+	@Override
+	public void startDocument() throws SAXException {
+	}
+
+	@Override
+	public void endDocument() throws SAXException {
+	}
+
+	@Override
+	public void startPrefixMapping(String prefix, String uri) throws SAXException {
+	}
+
+	@Override
+	public void endPrefixMapping(String prefix) throws SAXException {
+	}
+
+	@Override
+	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+	}
+
+	@Override
+	public void processingInstruction(String target, String data) throws SAXException {
+	}
+
+	@Override
+	public void skippedEntity(String name) throws SAXException {
 	}
 
 }

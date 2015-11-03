@@ -3,17 +3,19 @@ package cz.filipekt.jdcv;
 import java.util.List;
 import java.util.Map;
 
-import javafx.animation.Animation.Status;
-import javafx.beans.value.ChangeListener;
-import javafx.scene.Node;
-import javafx.scene.layout.HBox;
-import cz.cuni.mff.d3s.jdeeco.visualizer.robotsExample.DirtinessEvent;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.MapSceneExtensionPoint;
 import cz.filipekt.jdcv.SceneImportHandler.ShapeProvider;
 import cz.filipekt.jdcv.checkpoints.CheckPointDatabase;
 import cz.filipekt.jdcv.corridors.Background;
 import cz.filipekt.jdcv.events.EnsembleEvent;
+import cz.filipekt.jdcv.events.Event;
+import cz.filipekt.jdcv.events.EventType;
 import cz.filipekt.jdcv.network.MyLink;
 import cz.filipekt.jdcv.network.MyNode;
+import javafx.animation.Animation.Status;
+import javafx.beans.value.ChangeListener;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
 
 /**
  * Builder object for {@link MapScene}, as in "builder object" design pattern.
@@ -266,20 +268,32 @@ class MapSceneBuilder {
 	}
 
 	/**
+	 * Events that can be used to extend what can be visualized in the scene
+	 */
+	private Map<EventType, List<Event>> otherEvents;
+
+	public void setOtherEvents(Map<EventType, List<Event>> otherEvents) {
+		this.otherEvents = otherEvents;
+	}
+	
+	/**
+	 * Holds the extensions that allow the map scene to visualize the {@link otherEvents}
+	 */
+	private List<MapSceneExtensionPoint> mapSceneExtensions;
+
+	public void setMapSceneExtensions(List<MapSceneExtensionPoint> mapSceneExtensions) {
+		this.mapSceneExtensions = mapSceneExtensions;		
+	}
+
+	/**
 	 * Builds and returns a {@link MapScene} instance using the parameter values collected by this class. 
 	 */
 	public MapScene build(){
 		return new MapScene(nodes, links, mapWidth, mapHeight, timeLineStatus, timeLineRate, minTime, 
 				maxTime, duration, checkpointDb, ensembleEvents, controlsBar, matsimEventsPresent, 
-				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker, dirtinessEvents);
+				ensembleEventsPresent, personImageWidth, circleProvider, background, backgroundColorPicker, otherEvents, mapSceneExtensions);
 	}
 
-	// TODO move this to external "plugin" 
-	private List<DirtinessEvent> dirtinessEvents;
 
-	public void setDirtinessEvents(List<DirtinessEvent> dirtinessEvents) {
-		this.dirtinessEvents = dirtinessEvents;
-	}
-	// move this to external "plugin" 
 
 }

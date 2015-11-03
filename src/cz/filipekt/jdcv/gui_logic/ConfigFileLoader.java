@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import cz.cuni.mff.d3s.jdeeco.visualizer.extensions.VisualizerPlugin;
 import cz.filipekt.jdcv.Visualizer;
 import cz.filipekt.jdcv.util.CharsetNames;
 import cz.filipekt.jdcv.util.Dialog;
@@ -178,6 +179,12 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 	private final String showLinksFlagPreamble = "showLinks";
 	
 	/**
+	 * First block of the line which specifies the fully-qualified name of the plugin class,  
+	 * in the config file
+	 */
+	private final String pluginsPreamble = "plugins";
+	
+	/**
 	 * Fired when user clicks the "load" button next to the config file text field.
 	 * Makes sure that the config file exists, is opened and is properly processed.
 	 */
@@ -278,6 +285,9 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 							case showLinksFlagPreamble:
 								processBoolean(blocks, showLinksBox, lineNo);
 								break;
+							case pluginsPreamble:
+								processPluginLine(blocks, lineNo);
+								break;
 							default:
 								break;
 						}
@@ -297,6 +307,28 @@ public class ConfigFileLoader implements EventHandler<ActionEvent> {
 		}
 	}
 	
+	/*
+	 * Retrieves the plugin class by name, creates an instance and adds it to
+	 * the visualizer's plugins list 
+	 */
+	private void processPluginLine(String[] blocks, int lineNo) throws ConfigFileFormatException {
+		if ((blocks != null) && (blocks.length >= 1)){
+			if (blocks.length > 2){
+				throw new ConfigFileFormatException("[Line " + lineNo + 
+						"]: contains too many blocks delimited by \"" + delimiter + "\"");
+			}
+			try {
+				Class pluginClass = Class.forName(blocks[1]);
+				Visualizer.getInstance().addVisualizerPlugin((VisualizerPlugin) pluginClass.newInstance());
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		} else {
+			throw new ConfigFileFormatException("[Line " + (lineNo+1) + 
+					"]: contains too few blocks delimited by \"" + delimiter + "\"");
+		}
+	}
+
 	private void processScriptLine(String[] blocks, int lineNo) throws ConfigFileLoader.ConfigFileFormatException{
 		if ((blocks != null) && (blocks.length >= 1)){
 			if (blocks.length > 2){
