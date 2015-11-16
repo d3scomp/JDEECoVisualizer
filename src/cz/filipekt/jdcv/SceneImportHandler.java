@@ -378,8 +378,8 @@ public class SceneImportHandler implements EventHandler<ActionEvent>{
 		}
 		// go through all the plugins and collect the corresponding event handlers and map scene extensions 
 		for (VisualizerPlugin plugin : visualizer.getVisualizerPlugins()) {
-			otherEventHandlers.add(plugin.getDynamicEventHandler(startAt, endAt));
-			mapSceneExtensions.add(plugin.getMapSceneExtensionPoint());
+			otherEventHandlers.addAll(plugin.getDynamicEventHandlers(startAt, endAt));
+			mapSceneExtensions.addAll(plugin.getMapSceneExtensionPoints());
 		}
 		
 		reportProblemsForScene(problems, onlyAgents, startAt, endAt, duration);
