@@ -38,7 +38,7 @@ public class EntersOrLeavesVehicle implements MatsimEvent {
 	/**
 	 * ID of the person that entered (or left) the vehicle.
 	 */
-	private final String person;
+	private String person;
 
 	/**
 	 * @return ID of the person that entered (or left) the vehicle.
@@ -52,7 +52,7 @@ public class EntersOrLeavesVehicle implements MatsimEvent {
 	/**
 	 * The vehicle that has been entered (or left).
 	 */
-	private final String vehicleId;
+	private String vehicleId;
 
 	/**
 	 * @return The vehicle that has been entered (or left).
@@ -76,6 +76,27 @@ public class EntersOrLeavesVehicle implements MatsimEvent {
 		}
 		this.time = time;
 		this.person = person;
+		this.vehicleId = vehicleId;
+	}
+
+	/**
+	 * @param entered If true, the event type is "PersonEntersVehicle". If false, the event type is "PersonLeavesVehicle".
+	 * @param time Time at which this event occurred
+	 */
+	public EntersOrLeavesVehicle(boolean entered, double time) {
+		if (entered){
+			type = EventType.PERSON_ENTERS_VEHICLE;
+		} else {
+			type = EventType.PERSON_LEAVES_VEHICLE;
+		}
+		this.time = time;
+	}
+
+	public void setPerson(String person) {
+		this.person = person;
+	}
+
+	public void setVehicleId(String vehicleId) {
 		this.vehicleId = vehicleId;
 	}
 

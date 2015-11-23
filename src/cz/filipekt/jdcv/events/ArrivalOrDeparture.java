@@ -43,18 +43,30 @@ public class ArrivalOrDeparture implements MatsimEvent {
 	/**
 	 * ID of the person that arrived (or departed).
 	 */
-	private final String person;
+	private String person;
 	
 	/**
 	 * The link through which the person arrived (or departed).
 	 */
-	private final MyLink link;
+	private MyLink link;
 	
 	/**
 	 * Mode of the leg that started (or ended) with this departure (or arrival).
 	 */
-	private final LegMode legMode;
+	private String legMode;
 
+	public void setPerson(String person) {
+		this.person = person;
+	}
+
+	public void setLink(MyLink link) {
+		this.link = link;
+	}
+
+	public void setLegMode(String legMode) {
+		this.legMode = legMode;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * @see {@link ArrivalOrDeparture#type}
@@ -94,7 +106,7 @@ public class ArrivalOrDeparture implements MatsimEvent {
 	 * @return Mode of the leg that started (or ended) with this departure (or arrival).
 	 * @see {@link ArrivalOrDeparture#legMode}
 	 */
-	public LegMode getLegMode() {
+	public String getLegMode() {
 		return legMode;
 	}
 
@@ -114,7 +126,20 @@ public class ArrivalOrDeparture implements MatsimEvent {
 		this.time = time;
 		this.person = person;
 		this.link = link;
-		this.legMode = LegMode.from(legMode);
+		this.legMode = legMode;
+	}
+
+	/**
+	 * @param departure If true, the event is of type "departure". If false, the event is of type "arrival". 
+	 * @param time Time at which the event occurred.
+	 */
+	public ArrivalOrDeparture(boolean departure, double time) {
+		if (departure) {
+			type = EventType.DEPARTURE;
+		} else {
+			type = EventType.ARRIVAL;
+		}
+		this.time = time;
 	}
 
 }
