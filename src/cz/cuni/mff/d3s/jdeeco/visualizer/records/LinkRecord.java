@@ -1,8 +1,9 @@
-package cz.cuni.mff.d3s.jdeeco.visualizer.network;
+package cz.cuni.mff.d3s.jdeeco.visualizer.records;
 
 import java.util.HashMap;
 
 import cz.cuni.mff.d3s.deeco.runtimelog.RuntimeLogRecord;
+import cz.cuni.mff.d3s.jdeeco.visualizer.network.Link;
 
 public abstract class LinkRecord extends RuntimeLogRecord {
 

@@ -10,8 +10,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import cz.cuni.mff.d3s.deeco.logging.Log;
-import cz.cuni.mff.d3s.jdeeco.visualizer.network.EnteredLinkRecord;
-import cz.cuni.mff.d3s.jdeeco.visualizer.network.LeftLinkRecord;
+import cz.cuni.mff.d3s.jdeeco.visualizer.records.EnteredLinkRecord;
+import cz.cuni.mff.d3s.jdeeco.visualizer.records.LeftLinkRecord;
 import cz.filipekt.jdcv.events.EnteredOrLeftLink;
 import cz.filipekt.jdcv.events.MatsimEvent;
 import cz.filipekt.jdcv.exceptions.InvalidAttributeValueException;

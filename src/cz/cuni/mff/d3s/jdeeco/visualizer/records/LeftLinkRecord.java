@@ -1,4 +1,4 @@
-package cz.cuni.mff.d3s.jdeeco.visualizer.network;
+package cz.cuni.mff.d3s.jdeeco.visualizer.records;
 
 public class LeftLinkRecord extends LinkRecord {
 
