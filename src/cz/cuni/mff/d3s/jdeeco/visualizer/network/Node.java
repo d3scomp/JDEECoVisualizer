@@ -167,4 +167,23 @@ public class Node {
 		nodeIdReference = 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Node)){
+			return false;
+		}
+		Node other = (Node) obj;
+		return this.id == other.id;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return id;
+	}
 }

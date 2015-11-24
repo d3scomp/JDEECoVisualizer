@@ -513,4 +513,24 @@ public class Link {
 		
 		return builder.toString();
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Link)){
+			return false;
+		}
+		Link other = (Link) obj;
+		return this.id == other.id;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return id;
+	}
 }
