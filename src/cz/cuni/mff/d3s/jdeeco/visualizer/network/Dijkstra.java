@@ -116,7 +116,6 @@ public class Dijkstra {
 			if(node == source){
 				initialDistances.put(node, new DistanceFrom(null, 0));
 				DistanceFrom check = initialDistances.get(node);
-				System.out.println(check);
 			} else {
 				initialDistances.put(node, new DistanceFrom(null, Double.POSITIVE_INFINITY));
 			}
