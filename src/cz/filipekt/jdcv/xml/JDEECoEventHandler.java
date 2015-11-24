@@ -295,7 +295,7 @@ public class JDEECoEventHandler extends DefaultHandler {
 			} else if (typeVal.equals(leftVehicleTypeValue)){
 				
 				visitingEnteredOrLeftVehicleNode = true;
-				EntersOrLeavesVehicle elv = new EntersOrLeavesVehicle(true, time);
+				EntersOrLeavesVehicle elv = new EntersOrLeavesVehicle(false, time);
 				enteredOrLeftVehicleStack.push(elv);				
 				
 			} else {
