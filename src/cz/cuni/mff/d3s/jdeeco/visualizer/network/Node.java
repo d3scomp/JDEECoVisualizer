@@ -1,12 +1,19 @@
 package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
+import java.io.Serializable;
+
 /**
  * Each {@link Node} instance represents a node in a Matsim-style network.
  * 
  * @author Dominik Skoda <skoda@d3s.mff.cuni.cz>
  */
-public class Node {
+public class Node implements Serializable {
 	
+	/**
+	 * Generated UID.
+	 */
+	private static final long serialVersionUID = 3320094985829503349L;
+
 	/**
 	 * The reference to generate next node ID.
 	 */

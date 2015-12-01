@@ -1,5 +1,6 @@
 package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +16,12 @@ import java.util.List;
  * @author Dominik Skoda <skoda@d3s.mff.cuni.cz>
  *
  */
-public class Link {
+public class Link implements Serializable {
+
+	/**
+	 * Generated UID.
+	 */
+	private static final long serialVersionUID = 6970295212144057857L;
 
 	/**
 	 * The reference to generate next link ID.

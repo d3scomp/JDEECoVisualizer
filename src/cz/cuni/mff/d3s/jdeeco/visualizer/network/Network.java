@@ -1,5 +1,6 @@
 package cz.cuni.mff.d3s.jdeeco.visualizer.network;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,7 +25,12 @@ import java.util.Set;
  * 
  * @author Dominik Skoda <skoda@d3s.mff.cuni.cz>
  */
-public class Network {
+public class Network implements Serializable {
+
+	/**
+	 * Generated UID.
+	 */
+	private static final long serialVersionUID = 1232450903154695980L;
 
 	/**
 	 * Holds all the links of the network.
