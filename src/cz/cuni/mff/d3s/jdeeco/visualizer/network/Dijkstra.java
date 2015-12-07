@@ -92,7 +92,7 @@ public class Dijkstra {
 		
 		while(true){
 			updateSuccessorsDistances(graph, current, unvisited, distances);
-			if(current == target){
+			if(current.equals(target)){
 				return assemblePath(target, distances);
 			}
 			current = unvisited.poll();
@@ -113,7 +113,7 @@ public class Dijkstra {
 		Map<Node, DistanceFrom> initialDistances = new HashMap<>();
 		
 		for(Node node : graph.getNodes()){
-			if(node == source){
+			if(node.equals(source)){
 				initialDistances.put(node, new DistanceFrom(null, 0));
 			} else {
 				initialDistances.put(node, new DistanceFrom(null, Double.POSITIVE_INFINITY));
