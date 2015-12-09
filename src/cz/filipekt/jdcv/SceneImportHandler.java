@@ -709,7 +709,9 @@ public class SceneImportHandler implements EventHandler<ActionEvent>{
 		/**
 		 * Name of the resource file containing the image
 		 */
-		private final String image;
+		private final String foregroundImage;
+		
+		private final String backgroundImg;
 		
 		/**
 		 * Width of the provided image
@@ -735,13 +737,15 @@ public class SceneImportHandler implements EventHandler<ActionEvent>{
 		/**
 		 * @param isResource If true, the image specified by the second parameter, is looked 
 		 * for in the application resources. 
-		 * @param image If the first parameter holds, this parameter specifies the resource name. Otherwise,
+		 * @param foregroundImg If the first parameter holds, this parameter specifies the resource name. Otherwise,
 		 * this parameter contains a full path to the specified image.
+		 * @param string 
 		 * @param imageWidth Width (a also height) of the provided image
 		 * @throws FileNotFoundException When the image could not be found
 		 */
-		public ImageProvider(boolean isResource, String image, int imageWidth, int imageHeight, double opacity) throws FileNotFoundException {
-			this.image = image;
+		public ImageProvider(boolean isResource, String foregroundImg, String backgroundImg, int imageWidth, int imageHeight, double opacity) throws FileNotFoundException {
+			this.foregroundImage = foregroundImg;
+			this.backgroundImg = backgroundImg;
 			this.imageWidth = imageWidth;
 			this.imageHeight = imageHeight;
 			this.isResource = isResource;
@@ -759,34 +763,41 @@ public class SceneImportHandler implements EventHandler<ActionEvent>{
 		 */
 		@Override
 		public Node getNewShape() throws IOException {
-			final ImageView res;
+			Node top;
 			if (isResource){
-				res = Resources.getImageView(image, imageWidth);
+				top = Resources.getImageView(foregroundImage, imageWidth);
 			} else {
-				InputStream stream = Files.newInputStream(Paths.get(image));
+				InputStream stream = Files.newInputStream(Paths.get(foregroundImage));
 				Image image = new Image(stream, imageWidth, imageHeight, true, false);
-				res = new ImageView(image);
+				top = new ImageView(image);
 			}
-			res.setOpacity(opacity);
-			res.setLayoutX(-(imageWidth/2));
-			res.setLayoutY(-(imageHeight/2));
-			res.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			top.setOpacity(opacity);
 
-				@Override
-				public void handle(MouseEvent arg0) {
-					res.setScaleX(1.5);
-					res.setScaleY(1.5);
+			if (backgroundImg != null) {
+				ImageView background;
+				if (isResource){
+					background = Resources.getImageView(backgroundImg, imageWidth);
+				} else {
+					InputStream stream = Files.newInputStream(Paths.get(backgroundImg));
+					Image image = new Image(stream, imageWidth, imageHeight, true, false);
+					background = new ImageView(image);
 				}
-			});
-			res.setOnMouseExited(new EventHandler<MouseEvent>() {
+		        top.setBlendMode(javafx.scene.effect.BlendMode.SRC_OVER);
+		        
+		        Node blend = new javafx.scene.Group(
+		                background,
+		                top
+		        );
+		        top = blend;
+			}  
 
-				@Override
-				public void handle(MouseEvent arg0) {
-					res.setScaleX(1);
-					res.setScaleY(1);
-				}
-			});
-			return res;
+			top.setLayoutX(-(imageWidth/2));
+			top.setLayoutY(-(imageHeight/2));
+			return top;
+		}
+		
+		public double getOpacity() {
+			return this.opacity;
 		}
 		
 	}
