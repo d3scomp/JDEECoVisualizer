@@ -309,7 +309,7 @@ public class Network implements Serializable {
 		
 		Set<Link> incidentLinks = new HashSet<>();
 		for(Link link : linksWrap.links){
-			if(link.getFrom() == node || link.getTo() == node){
+			if(link.getFrom().equals(node) || link.getTo().equals(node)){
 				incidentLinks.add(link);
 			}
 		}
@@ -330,7 +330,7 @@ public class Network implements Serializable {
 		
 		Set<Link> fromLinks = new HashSet<>();
 		for(Link link : linksWrap.links){
-			if(link.getFrom() == node){
+			if(link.getFrom().equals(node)){
 				fromLinks.add(link);
 			}
 		}
@@ -351,7 +351,7 @@ public class Network implements Serializable {
 		
 		Set<Link> toLinks = new HashSet<>();
 		for(Link link : linksWrap.links){
-			if(link.getTo() == node){
+			if(link.getTo().equals(node)){
 				toLinks.add(link);
 			}
 		}
