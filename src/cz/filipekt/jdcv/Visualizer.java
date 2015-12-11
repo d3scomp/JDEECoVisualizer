@@ -21,6 +21,8 @@ import cz.filipekt.jdcv.gui_logic.ControlsBarItemHandler;
 import cz.filipekt.jdcv.gui_logic.FileChooserButton;
 import cz.filipekt.jdcv.gui_logic.GraphicsPanelHandler;
 import cz.filipekt.jdcv.gui_logic.ImportSceneHandler;
+import cz.filipekt.jdcv.gui_logic.JumpToActionEventHandler;
+import cz.filipekt.jdcv.gui_logic.JumpToEventHandler;
 import cz.filipekt.jdcv.gui_logic.PlayButtonHandler;
 import cz.filipekt.jdcv.gui_logic.PluginsPanelHandler;
 import cz.filipekt.jdcv.gui_logic.RecordingHandler;
@@ -162,9 +164,11 @@ public class Visualizer extends Application {
 
 				@Override
 				public void changed(ObservableValue<? extends Duration> arg0,
-						Duration oldValue, Duration newValue) {
+ Duration oldValue, Duration newValue) {
 					double millis = newValue.toMillis();
-					timelineSlider.setValue(newScene.convertToSimulationTime(millis));
+					double simulationTime = newScene.convertToSimulationTime(millis);
+					timelineSlider.setValue(simulationTime);
+					currentTimeLabel.setText(String.format("%.3f", simulationTime / 1000));
 				}
 			};
 			newScene.getTimeLine().currentTimeProperty().addListener(timelineToSliderListener);
@@ -466,7 +470,7 @@ public class Visualizer extends Application {
 	 * The checkbox specifying if just the links will be shown upon initialization
 	 */
 	private final CheckBox showLinksBox = new CheckBox("Show Links");
-	
+
 	/**
 	 * Path to the acmescripts that can be used to customize the visualization
 	 * graphics at startup
@@ -713,6 +717,17 @@ public class Visualizer extends Application {
 	private ChangeListener<Number> timeLineRate;
 	
 	/**
+	 * Used to jump to some specific point in the timeline.
+	 */
+	private final TextField jumpToTimeField = new TextField("0");
+	
+	public TextField getTimeField() {
+		return jumpToTimeField;
+	}
+	
+	Label currentTimeLabel = new Label("0.000");
+	
+	/**
 	 * Constructs the tool bar for zooming, pausing, forwarding etc. the simulation visualization.
 	 * It is shown at the bottom of the main window.
 	 */
@@ -742,17 +757,25 @@ public class Visualizer extends Application {
 		stopButton.setDisable(true);
 		stopButton.setGraphic(stopImage);
 		stopButton.setOnMouseClicked(new StopButtonAction(Visualizer.this, stopButton, recordingHandler));
-		controlsBar.getChildren().addAll(speedLabel, rwButton, playButton, stopButton, ffdButton, 
-				zoomInButton, zoomOutButton);
+		currentTimeLabel.setAlignment(Pos.CENTER_LEFT);
+		Label timeLabel = new Label("Time: ");
+		Label jumpToTimeLabel = new Label("Jump to sec: ");
+		jumpToTimeField.setMaxWidth(40);
+		jumpToTimeField.setAlignment(Pos.CENTER_RIGHT);
+		jumpToTimeField.setOnAction(new JumpToActionEventHandler(this));
+		Button jumpToButton = new Button("Go");
+		jumpToButton.setOnMouseClicked(new JumpToEventHandler(this));
+		controlsBar.getChildren().addAll(timeLabel, currentTimeLabel, jumpToTimeLabel, jumpToTimeField, jumpToButton, speedLabel,
+				rwButton, playButton, stopButton, ffdButton, zoomInButton, zoomOutButton);
 		controlsBar.setSpacing(10);
 		controlsBar.setAlignment(Pos.CENTER_RIGHT);
 	}
-	
+
 	/**
 	 * The stage used by this application.
 	 */
 	private Stage stage;
-	
+
 	/**
 	 * @return The stage used by this application.
 	 * @see {@link Visualizer#stage}
