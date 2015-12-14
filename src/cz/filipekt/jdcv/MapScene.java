@@ -1264,7 +1264,7 @@ public class MapScene {
 			if (imageName == null){
 				provider = circleProvider;
 			} else {
-				provider = new ImageProvider(isResource, additionalResourcesPath + imageName, null, personImageWidth, personImageWidth, 1);
+				provider = new ImageProvider(isResource, additionalResourcesPath + imageName, null, 2 * personImageWidth, 2 * personImageWidth, 1);
 			}
 			update(provider, false, selectedPeople);
 			if (status == Status.RUNNING){
