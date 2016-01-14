@@ -196,7 +196,7 @@ public class JDEECoEventHandler extends DefaultHandler {
 	/**
 	 * Maximal allowed number of event elements in the selection
 	 */
-	private final long countLimit = 600_000L;
+	private final long countLimit = 800_000L;
 
 	/**
 	 * Flag to denote parsing an enteredLink or a leftLink sub-element
